@@ -1,6 +1,5 @@
 import logging
 import telebot
-
 from django.conf import settings
 
 

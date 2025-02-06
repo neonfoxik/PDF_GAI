@@ -58,16 +58,11 @@ help_ = bot.message_handler(commands=["help"])(help_)
 transaction = bot.message_handler(commands=["balance"])(balance)
 
 
-files_to_text_ai = bot.message_handler(content_types=["document"])(files_to_text_ai)
-
 get_sum = bot.callback_query_handler(lambda c: c.data.startswith('accept_'))(get_sum)
 
-pay_for_mode = bot.callback_query_handler(lambda call: call.data.startswith("pay_"))(pay_for_mode)
 
 choice = bot.callback_query_handler(lambda c: c.data == "choice")(choice)
-image_gen = bot.callback_query_handler(lambda c: c.data == 'image_gen')(image_gen)
 
-image_gen = bot.callback_query_handler(lambda c: c.data == 'image_gen')(image_gen)
 long_message_get_send_option = bot.callback_query_handler(lambda c: c.data.startswith("lngmsg_"))(long_message_get_send_option)
 long_message_get_send_option_docs = bot.callback_query_handler(lambda c: c.data.startswith("documents_"))(long_message_get_send_option_docs)
 
