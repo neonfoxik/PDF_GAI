@@ -4,9 +4,9 @@ Bot for ai chat
 Telegram bot with ai chat
 
 1. clone repositori
-2. create and activate venv
-```python -m venv venv```
-```venv\Scripts\activate```
+2. create and activate .venv
+```python -m venv .venv```
+```.venv\Scripts\activate```
 5. create .env file with 
 ```python3
 BOT_NAME=
