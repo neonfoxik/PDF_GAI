@@ -1,8 +1,5 @@
 from traceback import format_exc
 from bot.handlers import *
-from bot.handlers.admin import *
-from bot.handlers.admin.admin import *
-from bot.handlers.user.long_messages import long_message_get_send_option, long_message_get_send_option_docs
 from django.conf import settings
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -28,7 +25,6 @@ def status(request: HttpRequest) -> JsonResponse:
 
 @csrf_exempt
 @require_POST
-@sync_to_async
 def index(request: HttpRequest) -> JsonResponse:
     if request.META.get("CONTENT_TYPE") != "application/json":
         return JsonResponse({"message": "Bad Request"}, status=403)
@@ -50,32 +46,5 @@ def index(request: HttpRequest) -> JsonResponse:
 """
 Common
 """
-
-admin_panel = bot.message_handler(commands=["admin"])(admin_panel)
-clear_chat_history = bot.message_handler(commands=["clear"])(clear_chat_history)
 start = bot.message_handler(commands=["start"])(start)
 help_ = bot.message_handler(commands=["help"])(help_)
-transaction = bot.message_handler(commands=["balance"])(balance)
-
-
-get_sum = bot.callback_query_handler(lambda c: c.data.startswith('accept_'))(get_sum)
-
-
-choice = bot.callback_query_handler(lambda c: c.data == "choice")(choice)
-
-long_message_get_send_option = bot.callback_query_handler(lambda c: c.data.startswith("lngmsg_"))(long_message_get_send_option)
-long_message_get_send_option_docs = bot.callback_query_handler(lambda c: c.data.startswith("documents_"))(long_message_get_send_option_docs)
-
-broadcast_message = bot.callback_query_handler(lambda c: c.data == "broadcast_message")(broadcast_message)
-admin_panelCall = bot.callback_query_handler(lambda c: c.data == "admin_panel")(admin_panel)
-monthMarkup = bot.callback_query_handler(lambda c: c.data == "monthMarkup")(monthMarkup)
-month_statistic = bot.callback_query_handler(lambda c: c.data.startswith("month_"))(month_statistic)
-choice_handler = bot.callback_query_handler(lambda c: c.data.startswith('choice_'))(choice_handler)
-back_handler = bot.callback_query_handler(lambda c: c.data == "back")(back_handler)
-
-
-
-
-accept_subscribe_payment = bot.callback_query_handler(lambda c: c.data.startswith('accept-sucribe_'))(accept_subscribe_payment)
-
-reject_payment = bot.callback_query_handler(lambda c: c.data.startswith('reject_'))(reject_payment)

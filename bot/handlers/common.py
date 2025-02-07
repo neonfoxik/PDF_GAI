@@ -9,7 +9,7 @@ from telebot.types import (
 from bot.models import User
 from bot.handlers.user.registration import start_registration
 from bot.texts import FAQ, LC_TEXT
-from bot.utils import access_for_subscribers
+
 
 
 def start(message: Message) -> None:
