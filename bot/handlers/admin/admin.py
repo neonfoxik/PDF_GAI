@@ -1,12 +1,11 @@
 from functools import wraps
-from datetime import datetime, timedelta
 
 from django.conf import settings
 from telebot.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 
 from bot import bot, logger
 from bot.models import User
-from bot.texts import ADMIN_PANEL_TEXT
+
 
 
 def admin_permission(func):
