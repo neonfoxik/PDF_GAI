@@ -23,7 +23,7 @@ DEBUG = True  # Изменено на True для отладки
 ALLOWED_HOSTS = ['*']
 
 # Определяем корневой URL-конфигуратор
-ROOT_URLCONF = 'bot.urls'  # Указываем путь к главному urls.py файлу
+ROOT_URLCONF = 'AI.urls'  # Указываем путь к главному urls.py файлу
 
 BOT_TOKEN = getenv("BOT_TOKEN")
 HOOK = getenv("HOOK")
