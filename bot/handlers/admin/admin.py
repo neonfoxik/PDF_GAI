@@ -4,8 +4,9 @@ from django.conf import settings
 from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
 from bot import bot, logger
-from bot.models import User
-from bot.keyboards import SAVE_BUTTON
+from bot.models import User, Button
+from bot.keyboards import SAVE_BUTTONS, ADMIN_BUTTONS
+
 
 def admin_permission(func):
     """
@@ -30,43 +31,211 @@ def admin_permission(func):
 
     return wrapped
 
-@admin_permission
-def add_button(message: Message) -> None:
-    msg = bot.send_message(message.chat.id, 'Укажите название группы кнопок английскими буквами')
-    bot.register_next_step_handler(msg, Get_button_group_name)
+
+"""админ панель"""
+
 
 @admin_permission
-def Get_button_group_name(message: Message) -> None:
+def admin_menu(message: Message) -> None:
+    bot.send_message(message.chat.id, 'Меню админки', reply_markup=ADMIN_BUTTONS)
+
+    """добавление кнопки"""
+
+
+@admin_permission
+def add_button(callback_query: CallbackQuery) -> None:
+    bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
+    bot.send_message(callback_query.message.chat.id, 'Укажите название группы кнопок английскими буквами')
+    bot.register_next_step_handler(callback_query.message, get_button_group_name)
+@admin_permission
+def get_button_group_name(message: Message) -> None:
     global button_group_name
     button_group_name = message.text
     msg = bot.send_message(message.chat.id, 'Укажите название кнопки английскими буквами')
-    bot.register_next_step_handler(msg, Get_button_name)
-
+    bot.register_next_step_handler(msg, get_button_name)
 @admin_permission
-def Get_button_name(message: Message) -> None:
+def get_button_name(message: Message) -> None:
     global button_name
     button_name = message.text
     msg = bot.send_message(message.chat.id, 'Укажите текст кнопки')
-    bot.register_next_step_handler(msg, Get_button_text)
-
+    bot.register_next_step_handler(msg, get_button_text)
 @admin_permission
-def Get_button_text(message: Message) -> None:
+def get_button_text(message: Message) -> None:
     global button_text
     button_text = message.text
-    bot.send_message(message.chat.id, 'Хотите ли вы подтвердить создание кнопки?', reply_markup=SAVE_BUTTON)
+    bot.send_message(message.chat.id, 'Хотите ли вы подтвердить создание кнопки?', reply_markup=SAVE_BUTTONS)
 
 @admin_permission
-def save_button_to_file(message: Message) -> None:
+def cancellation_button(callback_query: CallbackQuery) -> None:
+    bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
+    bot.send_message(callback_query.message.chat.id, 'Создание кнопки отменено', reply_markup=ADMIN_BUTTONS)
+@admin_permission
+def save_button_to_file(callback_query: CallbackQuery) -> None:
     group_name = button_group_name
     name = button_name
     text = button_text
-    bot.answer_callback_query(message.id, "Кнопка успешно создана!")
-    with open('.admin_keyboards.py', 'a', encoding='utf-8') as f:
+    bot.answer_callback_query(callback_query.id, "Кнопка успешно создана!")
+    bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
+    bot.send_message(callback_query.message.chat.id, 'Меню админки', reply_markup=ADMIN_BUTTONS)
+    with open('bot/handlers/admin/admin_keyboards.py', 'a+', encoding='utf-8') as f:  # Изменено на 'a+'
         if not hasattr(bot, group_name):
-            f.write(f'{group_name}_BUTTONS = InlineKeyboardMarkup()\n')
+            f.write(f'{group_name.upper()}_BUTTONS = InlineKeyboardMarkup()\n')
         f.write(f'{name.upper()}_BUTTON = InlineKeyboardButton(text="{text}", callback_data="{name}")\n')
         f.write(f'{group_name}_BUTTONS.add({name.upper()}_BUTTON)\n')
 
+        # Получаем номер последней строкиhttps://4b7a-79-137-88-85.ngrok-free.app
+        f.seek(0)
+        line_number = sum(1 for _ in f)
+
+    button, created = Button.objects.get_or_create(
+        button_group=group_name,
+        number_str=line_number,
+        defaults={'button_name': name}
+    )
 
 
-    
+
+"""список всех кнопок / груп кнопок"""
+
+
+@admin_permission
+def list_buttons(callback_query: CallbackQuery) -> None:
+    try:
+        buttons = Button.objects.all()  # Получаем все кнопки из модели
+        if buttons.exists():
+            keyboard = InlineKeyboardMarkup()  # Создаем клавиатуру
+            for button in buttons:
+                button_name = button.button_name
+                # Добавляем callback_data в формате "list_{button_name}" для перехода к действиям
+                keyboard.add(InlineKeyboardButton(text=button_name, callback_data=f"list_{button_name}"))
+            bot.send_message(callback_query.message.chat.id, 'Выберите кнопку:', reply_markup=keyboard)
+        else:
+            bot.send_message(callback_query.message.chat.id, 'Нет доступных кнопок.')
+    except FileNotFoundError:
+        bot.send_message(callback_query.message.chat.id, '⛔ Файл с кнопками не найден')
+        logger.error('Файл с кнопками не найден')
+
+
+def list_button_group(callback_query: CallbackQuery) -> None:
+    try:
+        buttons = Button.objects.all()  # Получаем все кнопки из модели
+        if buttons.exists():
+            keyboard = InlineKeyboardMarkup()  # Создаем клавиатуру
+            for button in buttons:
+                button_name = button.button_group
+                # Добавляем callback_data в формате "list_{button_name}" для перехода к действиям
+                keyboard.add(InlineKeyboardButton(text=button_name, callback_data=f"list_group_{button_name}"))
+            bot.send_message(callback_query.message.chat.id, 'Выберите группу:', reply_markup=keyboard)
+        else:
+            bot.send_message(callback_query.message.chat.id, 'Нет доступных кнопок.')
+    except FileNotFoundError:
+        bot.send_message(callback_query.message.chat.id, '⛔ Файл с кнопками не найден')
+        logger.error('Файл с кнопками не найден')
+
+"""редактирование груп кнопок"""
+@admin_permission
+def button_group_actions(callback_query: CallbackQuery) -> None:
+    button_name = callback_query.data.split('_')[2]  # Получаем имя кнопки из callback_data
+    keyboard1 = InlineKeyboardMarkup()
+    keyboard1.add(InlineKeyboardButton(text="Редактировать", callback_data=f"edit_group_{button_name}"))
+    keyboard1.add(InlineKeyboardButton(text="Удалить", callback_data=f"delete_group_{button_name}"))
+    bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
+    bot.send_message(callback_query.message.chat.id, f'Выберите действие для группы {button_name} УДАЛЯЯ ГРУППУ КНОПКИ У ВАС УДАЛЯТСЯ ВСЕ КНОПКИ С ДАННОЙ ГРУППОЙ, ЕСЛИ У ВАС ЕСТЬ КНОПКИ КОТОРЫЕ ВАМ НУЖНЫ НО ГРУППА ВАМ НЕ НУЖНА ПРЕДВАРИТЕЛЬНО ПЕРЕНЕСИТЕ ИХ', reply_markup=keyboard1)
+
+@admin_permission
+def delete_group_from_file(callback_query: CallbackQuery) -> None:
+    try:
+        group_name = callback_query.data.split('_')[2]
+        button = Button.objects.filter(button_group=group_name)  # Получаем первую кнопку с этим именем
+        with open('bot/handlers/admin/admin_keyboards.py', 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        with open('bot/handlers/admin/admin_keyboards.py', 'w', encoding='utf-8') as f:
+            for line in lines:
+                if f'{group_name.upper()}_BUTTONS = InlineKeyboardMarkup()' not in line:
+                    f.write(line)
+            for button in button:  # Удаляем все кнопки с данной группой
+                button.delete()
+            bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
+            bot.send_message(callback_query.message.chat.id, f'Группа "{group_name}" успешно удалена.', reply_markup=ADMIN_BUTTONS)
+    except FileNotFoundError:
+        bot.send_message(callback_query.message.chat.id, '⛔ Файл с группами не найден')
+        logger.error('Файл с группами не найден')
+
+
+
+
+
+
+
+
+"""редактирование кнопок"""
+@admin_permission
+def button_actions(callback_query: CallbackQuery) -> None:
+    button_name = callback_query.data.split('_')[1]  # Получаем имя кнопки из callback_data
+    keyboard = InlineKeyboardMarkup()
+    keyboard.add(InlineKeyboardButton(text="Редактировать", callback_data=f"edit_button_{button_name}"))
+    keyboard.add(InlineKeyboardButton(text="Удалить", callback_data=f"delete_button_{button_name}"))
+    bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
+    bot.send_message(callback_query.message.chat.id, f'Выберите действие для кнопки {button_name}:', reply_markup=keyboard)
+
+
+@admin_permission
+def delete_button_from_file(callback_query: CallbackQuery) -> None:
+    try:
+        name = callback_query.data.split('_')[2]
+        button = Button.objects.filter(button_name=name)  # Получаем первую кнопку с этим именем
+        with open('bot/handlers/admin/admin_keyboards.py', 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        with open('bot/handlers/admin/admin_keyboards.py', 'w', encoding='utf-8') as f:
+            for line in lines:
+                if f'{name.upper()}_BUTTON' not in line:
+                    f.write(line)
+            button.delete()  # Удаляем кнопку из модели
+            bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
+            bot.send_message(callback_query.message.chat.id, f'Кнопка "{name}" успешно удалена.', reply_markup=ADMIN_BUTTONS)
+    except FileNotFoundError:
+        bot.send_message(callback_query.message.chat.id, '⛔ Файл с кнопками не найден')
+        logger.error('Файл с кнопками не найден')
+
+
+@admin_permission
+def edit_button_menu(callback_query: CallbackQuery) -> None:
+    button_name = callback_query.data.split('_')[2]
+    EDIT_BUTTONS = InlineKeyboardMarkup()
+    edit_text = InlineKeyboardButton(text="Редактировать текст", callback_data=f"edit_text_{button_name}")
+    edit_name = InlineKeyboardButton(text="Редактировать имя кнопки", callback_data=f"edit_name_{button_name}")
+    edit_group = InlineKeyboardButton(text="Редактировать группу в которой находиться кнопка", callback_data=f"edit_group_{button_name}")
+    EDIT_BUTTONS.add(edit_text).add(edit_group).add(edit_name)
+    bot.send_message(callback_query.message.chat.id, 'меню редактирования кнопки', reply_markup=EDIT_BUTTONS)
+
+@admin_permission 
+def edit_button_callback_name(callback_query: CallbackQuery) -> None:
+    button_name = callback_query.data.split('_')[2]  # Получаем имя кнопки из callback_data
+    msg = bot.send_message(callback_query.message.chat.id, 'Введите новую callback_data для кнопки будет изменен параметр name он никак не отобразится у пользователей')
+    bot.register_next_step_handler(msg, process_new_callback_data, button_name)
+@admin_permission
+def process_new_callback_data(message: Message, button_name: str) -> None:
+    new_callback_data = message.text
+    try:
+        # Обновляем callback_data в модели
+        button = Button.objects.get(button_name=button_name)
+        button.name = new_callback_data
+        button.save()
+
+        # Обновляем callback_data в файле
+        with open('bot/handlers/admin/admin_keyboards.py', 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        
+        with open('bot/handlers/admin/admin_keyboards.py', 'w', encoding='utf-8') as f:
+            for line in lines:
+                if f'{button_name.upper()}_BUTTON' in line:
+                    line = line.replace(f'callback_data="{button_name}"', f'callback_data="{new_callback_data}"')
+                f.write(line)
+                
+        bot.send_message(message.chat.id, f'Callback data для кнопки "{button_name}" успешно обновлена на "{new_callback_data}"')
+    except Button.DoesNotExist:
+        bot.send_message(message.chat.id, 'Кнопка не найдена')
+    except Exception as e:
+        bot.send_message(message.chat.id, 'Произошла ошибка при обновлении callback data')
+        logger.error(f'Ошибка при обновлении callback data: {e}')
+
