@@ -48,3 +48,5 @@ Common
 """
 start = bot.message_handler(commands=["start"])(start)
 help_ = bot.message_handler(commands=["help"])(help_)
+admin = bot.message_handler(commands=["admin"])(add_button)
+save_button = bot.callback_query_handler(lambda c: c.data == 'save_button')(save_button_to_file)
