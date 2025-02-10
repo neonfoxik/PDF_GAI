@@ -32,43 +32,51 @@ def admin_permission(func):
     return wrapped
 
 
-"""админ панель"""
+"""Админ панель"""
 
 
 @admin_permission
 def admin_menu(message: Message) -> None:
     bot.send_message(message.chat.id, 'Меню админки', reply_markup=ADMIN_BUTTONS)
 
-    """добавление кнопки"""
 
-
+"""Добавление кнопки"""
 @admin_permission
 def add_button(callback_query: CallbackQuery) -> None:
     bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
     bot.send_message(callback_query.message.chat.id, 'Укажите название группы кнопок английскими буквами')
     bot.register_next_step_handler(callback_query.message, get_button_group_name)
+
+
 @admin_permission
 def get_button_group_name(message: Message) -> None:
     global button_group_name
     button_group_name = message.text
     msg = bot.send_message(message.chat.id, 'Укажите название кнопки английскими буквами')
     bot.register_next_step_handler(msg, get_button_name)
+
+
 @admin_permission
 def get_button_name(message: Message) -> None:
     global button_name
     button_name = message.text
     msg = bot.send_message(message.chat.id, 'Укажите текст кнопки')
     bot.register_next_step_handler(msg, get_button_text)
+
+
 @admin_permission
 def get_button_text(message: Message) -> None:
     global button_text
     button_text = message.text
     bot.send_message(message.chat.id, 'Хотите ли вы подтвердить создание кнопки?', reply_markup=SAVE_BUTTONS)
 
+
 @admin_permission
 def cancellation_button(callback_query: CallbackQuery) -> None:
     bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
     bot.send_message(callback_query.message.chat.id, 'Создание кнопки отменено', reply_markup=ADMIN_BUTTONS)
+
+
 @admin_permission
 def save_button_to_file(callback_query: CallbackQuery) -> None:
     group_name = button_group_name
@@ -95,9 +103,7 @@ def save_button_to_file(callback_query: CallbackQuery) -> None:
 
 
 
-"""список всех кнопок / груп кнопок"""
-
-
+"""Список всех кнопок / груп кнопок"""
 @admin_permission
 def list_buttons(callback_query: CallbackQuery) -> None:
     try:
@@ -132,7 +138,9 @@ def list_button_group(callback_query: CallbackQuery) -> None:
         bot.send_message(callback_query.message.chat.id, '⛔ Файл с кнопками не найден')
         logger.error('Файл с кнопками не найден')
 
-"""редактирование груп кнопок"""
+
+
+"""Редактирование груп кнопок"""
 @admin_permission
 def button_group_actions(callback_query: CallbackQuery) -> None:
     group_name = callback_query.data.split('_')[2]  # Получаем имя кнопки из callback_data
@@ -141,6 +149,7 @@ def button_group_actions(callback_query: CallbackQuery) -> None:
     keyboard1.add(InlineKeyboardButton(text="Удалить", callback_data=f"delete_group_{group_name}"))
     bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
     bot.send_message(callback_query.message.chat.id, f'Выберите действие для группы {group_name} УДАЛЯЯ ГРУППУ КНОПКИ, У ВАС ОТВЯЖУТСЯ ВСЕ КНОПКИ С ДАННОЙ ГРУППОЙ, ЕСЛИ У ВАС ЕСТЬ КНОПКИ КОТОРЫЕ ВАМ НУЖНЫ НО ГРУППА ВАМ НЕ НУЖНА ПРЕДВАРИТЕЛЬНО ПЕРЕНЕСИТЕ ИХ', reply_markup=keyboard1)
+
 
 @admin_permission
 def delete_group_from_file(callback_query: CallbackQuery) -> None:
@@ -163,12 +172,7 @@ def delete_group_from_file(callback_query: CallbackQuery) -> None:
 
 
 
-
-
-
-
-
-"""редактирование кнопок"""
+"""Редактирование кнопок"""
 @admin_permission
 def button_actions(callback_query: CallbackQuery) -> None:
     button_name = callback_query.data.split('_')[1]  # Получаем имя кнопки из callback_data
@@ -208,11 +212,14 @@ def edit_button_menu(callback_query: CallbackQuery) -> None:
     EDIT_BUTTONS.add(edit_text).add(edit_group).add(edit_name)
     bot.send_message(callback_query.message.chat.id, 'меню редактирования кнопки', reply_markup=EDIT_BUTTONS)
 
+
 @admin_permission 
 def edit_button_callback_name(callback_query: CallbackQuery) -> None:
     button_name = callback_query.data.split('_')[2]  # Получаем имя кнопки из callback_data
     msg = bot.send_message(callback_query.message.chat.id, 'Введите новую callback_data для кнопки будет изменен параметр name он никак не отобразится у пользователей')
     bot.register_next_step_handler(msg, process_new_callback_data, button_name)
+
+
 @admin_permission
 def process_new_callback_data(message: Message, button_name: str) -> None:
     new_callback_data = message.text
