@@ -135,12 +135,12 @@ def list_button_group(callback_query: CallbackQuery) -> None:
 """редактирование груп кнопок"""
 @admin_permission
 def button_group_actions(callback_query: CallbackQuery) -> None:
-    button_name = callback_query.data.split('_')[2]  # Получаем имя кнопки из callback_data
+    group_name = callback_query.data.split('_')[2]  # Получаем имя кнопки из callback_data
     keyboard1 = InlineKeyboardMarkup()
-    keyboard1.add(InlineKeyboardButton(text="Редактировать", callback_data=f"edit_group_{button_name}"))
-    keyboard1.add(InlineKeyboardButton(text="Удалить", callback_data=f"delete_group_{button_name}"))
+    keyboard1.add(InlineKeyboardButton(text="Редактировать", callback_data=f"edit_group_{group_name}"))
+    keyboard1.add(InlineKeyboardButton(text="Удалить", callback_data=f"delete_group_{group_name}"))
     bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
-    bot.send_message(callback_query.message.chat.id, f'Выберите действие для группы {button_name} УДАЛЯЯ ГРУППУ КНОПКИ У ВАС УДАЛЯТСЯ ВСЕ КНОПКИ С ДАННОЙ ГРУППОЙ, ЕСЛИ У ВАС ЕСТЬ КНОПКИ КОТОРЫЕ ВАМ НУЖНЫ НО ГРУППА ВАМ НЕ НУЖНА ПРЕДВАРИТЕЛЬНО ПЕРЕНЕСИТЕ ИХ', reply_markup=keyboard1)
+    bot.send_message(callback_query.message.chat.id, f'Выберите действие для группы {group_name} УДАЛЯЯ ГРУППУ КНОПКИ, У ВАС ОТВЯЖУТСЯ ВСЕ КНОПКИ С ДАННОЙ ГРУППОЙ, ЕСЛИ У ВАС ЕСТЬ КНОПКИ КОТОРЫЕ ВАМ НУЖНЫ НО ГРУППА ВАМ НЕ НУЖНА ПРЕДВАРИТЕЛЬНО ПЕРЕНЕСИТЕ ИХ', reply_markup=keyboard1)
 
 @admin_permission
 def delete_group_from_file(callback_query: CallbackQuery) -> None:
@@ -153,7 +153,7 @@ def delete_group_from_file(callback_query: CallbackQuery) -> None:
             for line in lines:
                 if f'{group_name.upper()}_BUTTONS = InlineKeyboardMarkup()' not in line:
                     f.write(line)
-            for button in button:  # Удаляем все кнопки с данной группой
+            for button in button:  # ТУТ НУЖНО ПЕРЕЗАПИСЫВАТЬ ГРУППУ ВСЕХ КНОПОК КОТОРАЯ group_name на ""
                 button.delete()
             bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
             bot.send_message(callback_query.message.chat.id, f'Группа "{group_name}" успешно удалена.', reply_markup=ADMIN_BUTTONS)
