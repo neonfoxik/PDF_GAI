@@ -53,31 +53,7 @@ def get_button_group_name(message: Message) -> None:
     global button_group_name
     button_group_name = message.text
     msg = bot.send_message(message.chat.id, 'Укажите название кнопки английскими буквами')
-    bot.register_next_step_handler(msg, get_button_group_parentButton)
-
-
-@admin_permission
-def get_button_group_parentButton(message: Message) -> None:
-    buttons = Button.objects.all()  # Получаем все кнопки из модели
-    if buttons.exists():
-        keyboard = InlineKeyboardMarkup()  # Создаем клавиатуру
-        for button in buttons:
-            keyboard.add(InlineKeyboardButton(text=button.button_text, callback_data=f'set_parent_{button.button_name}'))
-        msg = bot.send_message(message.chat.id, 'Выберите кнопку, которую хотите назначить родительской:', reply_markup=keyboard)
-        bot.register_next_step_handler(msg, set_parent_button)
-    else:
-        # Если кнопок нет, устанавливаем значение по умолчанию
-        global parent_button_name
-        parent_button_name = 'none@models.py'
-        bot.send_message(message.chat.id, 'Нет доступных кнопок. Родительская кнопка не установлена не пугайтесь это означает что она находиться в самом начале меню пользователя.')
-
-@admin_permission
-def set_parent_button(message: Message) -> None:
-    global parent_button_name
-    parent_button_name = message.data.split('_')[2]  # Получаем имя кнопки из callback_data
-    bot.send_message(message.chat.id, f'Родительская кнопка установлена на: {parent_button_name}')
-    bot.register_next_step_handler(get_button_name)
-
+    bot.register_next_step_handler(msg, get_button_name)
 
 @admin_permission
 def get_button_name(message: Message) -> None:
@@ -85,6 +61,7 @@ def get_button_name(message: Message) -> None:
     button_name = message.text
     msg = bot.send_message(message.chat.id, 'Укажите текст кнопки')
     bot.register_next_step_handler(msg, get_button_text)
+    
 @admin_permission
 def get_button_text(message: Message) -> None:
     global button_text
@@ -100,16 +77,14 @@ def save_button_to_file(callback_query: CallbackQuery) -> None:
     group_name = button_group_name
     name = button_name
     text = button_text
+    
+    # Создаем новую кнопку в базе данных
+    new_button = Button(button_group=group_name, button_name=name, button_text=text)
+    new_button.save()
+    
     bot.answer_callback_query(callback_query.id, "Кнопка успешно создана!")
     bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
     bot.send_message(callback_query.message.chat.id, 'Меню админки', reply_markup=ADMIN_BUTTONS)
-    group, created = ButtonGroup.objects.get_or_create(
-        name=group_name
-    )
-    button, created = Button.objects.get_or_create(
-        button_group=group,
-        defaults={'button_name': name}
-    )
 
 
 

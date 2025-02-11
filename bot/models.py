@@ -53,12 +53,12 @@ class ButtonGroup(models.Model):
         max_length=40,
         verbose_name='Имя группы кнопок'
     )
-    is_main_group = models.BooleanField(default=False)
-    parent_button = models.ForeignKey(
-        'Button',
-        on_delete=models.CASCADE,
-        verbose_name='родительская кнопка'
+    parent_button = models.CharField(
+        primary_key=True,
+        max_length=40,
+        verbose_name='Имя родительской кнопки'
     )
+    is_main_group = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Группа кнопок'
