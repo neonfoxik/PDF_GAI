@@ -26,7 +26,8 @@ class User(models.Model):
 class Button(models.Model):
     button_name = models.CharField(
         primary_key=True,
-        max_length=40
+        max_length=20,
+        verbose_name='имя кнопки а также колбэк дата'
     )
     button_group = models.ForeignKey(
         'ButtonGroup',
@@ -46,8 +47,6 @@ class Button(models.Model):
     def __str__(self):
         return self.button_name
 
-
-
 class ButtonGroup(models.Model):
     name = models.CharField(
         primary_key=True,
@@ -55,7 +54,11 @@ class ButtonGroup(models.Model):
         verbose_name='Имя группы кнопок'
     )
     is_main_group = models.BooleanField(default=False)
-
+    parent_button = models.ForeignKey(
+        'Button',
+        on_delete=models.CASCADE,
+        verbose_name='родительская кнопка'
+    )
 
     class Meta:
         verbose_name = 'Группа кнопок'
@@ -63,3 +66,26 @@ class ButtonGroup(models.Model):
 
     def __str__(self):
         return self.name
+
+class Texts(models.Model):
+    name_txt = models.CharField(
+        primary_key=True,
+        max_length=20,
+        verbose_name='Имя текста'
+    )
+    txt_text = models.CharField(
+        max_length=4000,
+        verbose_name='Текст кнопок'
+    )
+    parent_button = models.ForeignKey(
+        'Button',
+        on_delete=models.CASCADE,
+        verbose_name='родительская кнопка'
+    )
+
+    class Meta:
+        verbose_name = 'Текст'
+        verbose_name_plural = 'Тексты'
+
+    def __str__(self):
+        return self.name_txt

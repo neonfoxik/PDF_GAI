@@ -2,7 +2,8 @@ from django.contrib import admin
 from .models import (
     User,
     Button,
-    ButtonGroup  # Добавлено для аналогии
+    ButtonGroup,
+    Texts
 )
 
 class UserAdmin(admin.ModelAdmin):

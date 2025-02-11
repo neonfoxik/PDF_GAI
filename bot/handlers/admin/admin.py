@@ -4,7 +4,7 @@ from django.conf import settings
 from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
 from bot import bot, logger
-from bot.models import User, Button, ButtonGroup
+from bot.models import User, Button, ButtonGroup, Texts
 from bot.keyboards import SAVE_BUTTONS, ADMIN_BUTTONS
 
 
@@ -47,12 +47,38 @@ def add_button(callback_query: CallbackQuery) -> None:
     bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
     bot.send_message(callback_query.message.chat.id, 'Укажите название группы кнопок английскими буквами')
     bot.register_next_step_handler(callback_query.message, get_button_group_name)
+
 @admin_permission
 def get_button_group_name(message: Message) -> None:
     global button_group_name
     button_group_name = message.text
     msg = bot.send_message(message.chat.id, 'Укажите название кнопки английскими буквами')
-    bot.register_next_step_handler(msg, get_button_name)
+    bot.register_next_step_handler(msg, get_button_group_parentButton)
+
+
+@admin_permission
+def get_button_group_parentButton(message: Message) -> None:
+    buttons = Button.objects.all()  # Получаем все кнопки из модели
+    if buttons.exists():
+        keyboard = InlineKeyboardMarkup()  # Создаем клавиатуру
+        for button in buttons:
+            keyboard.add(InlineKeyboardButton(text=button.button_text, callback_data=f'set_parent_{button.button_name}'))
+        msg = bot.send_message(message.chat.id, 'Выберите кнопку, которую хотите назначить родительской:', reply_markup=keyboard)
+        bot.register_next_step_handler(msg, set_parent_button)
+    else:
+        # Если кнопок нет, устанавливаем значение по умолчанию
+        global parent_button_name
+        parent_button_name = 'none@models.py'
+        bot.send_message(message.chat.id, 'Нет доступных кнопок. Родительская кнопка не установлена не пугайтесь это означает что она находиться в самом начале меню пользователя.')
+
+@admin_permission
+def set_parent_button(message: Message) -> None:
+    global parent_button_name
+    parent_button_name = message.data.split('_')[2]  # Получаем имя кнопки из callback_data
+    bot.send_message(message.chat.id, f'Родительская кнопка установлена на: {parent_button_name}')
+    bot.register_next_step_handler(get_button_name)
+
+
 @admin_permission
 def get_button_name(message: Message) -> None:
     global button_name
@@ -215,10 +241,6 @@ def analyze_and_fill_common_admin(callback_query: CallbackQuery) -> None:
     Анализирует базу данных и заполняет файл common_admin.py функциями и callback данными
     """
     try:
-        # Получаем все группы кнопок
-        button_groups = ButtonGroup.objects.all()
-        
-        # Формируем базовый шаблон для common_admin.py
         common_admin_template = """from bot import bot, logger
 from django.conf import settings
 from telebot.types import (
@@ -230,25 +252,53 @@ from telebot.types import (
 from bot.models import User, Button, ButtonGroup
 
 def main_menu(callback_query: CallbackQuery) -> None:
-    keyboard = InlineKeyboardMarkup()
+    
 """
-        
-        # Добавляем динамически сгенерированные кнопки для каждой группы
-        for group in button_groups:
-            buttons = Button.objects.filter(button_group=group)
-            if buttons.exists():
-                # Добавляем создание группы кнопок
-                common_admin_template += f"\n    # Группа кнопок: {group.name}\n"
+        mainGroup = ButtonGroup.objects.filte(is_main_group=True)
+        buttons = Button.objects.filter(button_group=mainGroup.name)
+
+        if buttons.exists():
+            common_admin_template += f"\n   {mainGroup.name} = InlineKeyboardMarkup()\n"
+
+            for button in buttons:
+                common_admin_template += f"    {mainGroup.name}.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))\n"
+
+        button_groups = ButtonGroup.objects.all()
                 
-                for button in buttons:
-                    # Добавляем кнопку
-                    common_admin_template += f"    keyboard.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))\n"
-                    
-                    # Создаем обработчик для кнопки
-                    common_admin_template += f"""
+        for group in button_groups:
+            try:
+                keyboard_name = group.name
+                common_admin_template += f"\n    {keyboard_name} = InlineKeyboardMarkup()\n"
+                group_buttons = Button.objects.filter(button_group=group)
+                if group_buttons.exists():
+                    for button in group_buttons:
+                        common_admin_template += f"    {keyboard_name}.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))\n"
+                        common_admin_template += f"""
 def {button.button_name}_handler(callback_query: CallbackQuery) -> None:
-    bot.answer_callback_query(callback_query.id)
-    bot.send_message(callback_query.message.chat.id, '{button.button_text}')\n"""
+    try:
+        bot.answer_callback_query(callback_query.id)
+        # Проверяем есть ли дочерние группы кнопок
+        child_group = ButtonGroup.objects.filter(parent_button__button_name='{button.button_name}').first()
+        if child_group:
+            bot.edit_message_text(
+                chat_id=callback_query.message.chat.id,
+                message_id=callback_query.message.message_id,
+                text='Подменю {button.button_text}',
+                reply_markup=child_group.name_keyboard
+            )
+        else:
+            # Если нет дочерних групп, просто отправляем сообщение
+            bot.send_message(callback_query.message.chat.id, 'Выбрана кнопка: {button.button_text}')
+    except Exception as e:
+        logger.error(f'Ошибка в обработчике кнопки {button.button_name}: {{e}}')
+        bot.send_message(callback_query.message.chat.id, 'Произошла ошибка при обработке команды')
+"""
+            except Exception as e:
+                logger.error(f'Ошибка при создании клавиатуры для группы {group.name}: {e}')
+                continue
+
+
+
 
         # Записываем сгенерированный код в файл
         with open('bot/handlers/common_admin.py', 'w', encoding='utf-8') as file:

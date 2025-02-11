@@ -69,11 +69,3 @@ analyze_and_fill_common_admin = bot.callback_query_handler(lambda c: c.data == '
 
 
 
-
-
-
-
-
-
-
-"""views admin"""
