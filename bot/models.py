@@ -28,15 +28,16 @@ class Button(models.Model):
         primary_key=True,
         max_length=40
     )
-    button_group = models.CharField(
-        max_length=40,
+    button_group = models.ForeignKey(
+        'ButtonGroup',
+        on_delete=models.CASCADE,
         verbose_name='группа кнопок'
     )
     button_text = models.CharField(
         max_length=100,
-        verbose_name='группа кнопок'
+        verbose_name='текст кнопки'
     )
-    number_str = models.IntegerField()
+
 
     class Meta:
         verbose_name = 'Кнопка'
@@ -44,3 +45,21 @@ class Button(models.Model):
 
     def __str__(self):
         return self.button_name
+
+
+
+class ButtonGroup(models.Model):
+    name = models.CharField(
+        primary_key=True,
+        max_length=40,
+        verbose_name='Имя группы кнопок'
+    )
+    is_main_group = models.BooleanField(default=False)
+
+
+    class Meta:
+        verbose_name = 'Группа кнопок'
+        verbose_name_plural = 'Группы кнопок'
+
+    def __str__(self):
+        return self.name

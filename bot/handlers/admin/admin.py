@@ -4,7 +4,7 @@ from django.conf import settings
 from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
 from bot import bot, logger
-from bot.models import User, Button
+from bot.models import User, Button, ButtonGroup
 from bot.keyboards import SAVE_BUTTONS, ADMIN_BUTTONS
 
 
@@ -77,19 +77,11 @@ def save_button_to_file(callback_query: CallbackQuery) -> None:
     bot.answer_callback_query(callback_query.id, "Кнопка успешно создана!")
     bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
     bot.send_message(callback_query.message.chat.id, 'Меню админки', reply_markup=ADMIN_BUTTONS)
-    with open('bot/handlers/admin/admin_keyboards.py', 'a+', encoding='utf-8') as f:  # Изменено на 'a+'
-        if not hasattr(bot, group_name):
-            f.write(f'{group_name.upper()}_BUTTONS = InlineKeyboardMarkup()\n')
-        f.write(f'{name.upper()}_BUTTON = InlineKeyboardButton(text="{text}", callback_data="{name}")\n')
-        f.write(f'{group_name}_BUTTONS.add({name.upper()}_BUTTON)\n')
-
-        # Получаем номер последней строкиhttps://4b7a-79-137-88-85.ngrok-free.app
-        f.seek(0)
-        line_number = sum(1 for _ in f)
-
+    group, created = ButtonGroup.objects.get_or_create(
+        name=group_name
+    )
     button, created = Button.objects.get_or_create(
-        button_group=group_name,
-        number_str=line_number,
+        button_group=group,
         defaults={'button_name': name}
     )
 
@@ -146,17 +138,11 @@ def button_group_actions(callback_query: CallbackQuery) -> None:
 def delete_group_from_file(callback_query: CallbackQuery) -> None:
     try:
         group_name = callback_query.data.split('_')[2]
-        button = Button.objects.filter(button_group=group_name)  # Получаем первую кнопку с этим именем
-        with open('bot/handlers/admin/admin_keyboards.py', 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-        with open('bot/handlers/admin/admin_keyboards.py', 'w', encoding='utf-8') as f:
-            for line in lines:
-                if f'{group_name.upper()}_BUTTONS = InlineKeyboardMarkup()' not in line:
-                    f.write(line)
-            for button in button:  # ТУТ НУЖНО ПЕРЕЗАПИСЫВАТЬ ГРУППУ ВСЕХ КНОПОК КОТОРАЯ group_name на ""
-                button.delete()
-            bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
-            bot.send_message(callback_query.message.chat.id, f'Группа "{group_name}" успешно удалена.', reply_markup=ADMIN_BUTTONS)
+        button = ButtonGroup.objects.filter(name=group_name)  # Получаем первую кнопку с этим именем
+        for button in button:  # ТУТ НУЖНО ПЕРЕЗАПИСЫВАТЬ ГРУППУ ВСЕХ КНОПОК КОТОРАЯ group_name на ""
+            button.delete()
+        bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
+        bot.send_message(callback_query.message.chat.id, f'Группа "{group_name}" успешно удалена.', reply_markup=ADMIN_BUTTONS)
     except FileNotFoundError:
         bot.send_message(callback_query.message.chat.id, '⛔ Файл с группами не найден')
         logger.error('Файл с группами не найден')
@@ -184,15 +170,9 @@ def delete_button_from_file(callback_query: CallbackQuery) -> None:
     try:
         name = callback_query.data.split('_')[2]
         button = Button.objects.filter(button_name=name)  # Получаем первую кнопку с этим именем
-        with open('bot/handlers/admin/admin_keyboards.py', 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-        with open('bot/handlers/admin/admin_keyboards.py', 'w', encoding='utf-8') as f:
-            for line in lines:
-                if f'{name.upper()}_BUTTON' not in line:
-                    f.write(line)
-            button.delete()  # Удаляем кнопку из модели
-            bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
-            bot.send_message(callback_query.message.chat.id, f'Кнопка "{name}" успешно удалена.', reply_markup=ADMIN_BUTTONS)
+        button.delete()  # Удаляем кнопку из модели
+        bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
+        bot.send_message(callback_query.message.chat.id, f'Кнопка "{name}" успешно удалена.', reply_markup=ADMIN_BUTTONS)
     except FileNotFoundError:
         bot.send_message(callback_query.message.chat.id, '⛔ Файл с кнопками не найден')
         logger.error('Файл с кнопками не найден')
@@ -221,17 +201,6 @@ def process_new_callback_data(message: Message, button_name: str) -> None:
         button = Button.objects.get(button_name=button_name)
         button.name = new_callback_data
         button.save()
-
-        # Обновляем callback_data в файле
-        with open('bot/handlers/admin/admin_keyboards.py', 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-        
-        with open('bot/handlers/admin/admin_keyboards.py', 'w', encoding='utf-8') as f:
-            for line in lines:
-                if f'{button_name.upper()}_BUTTON' in line:
-                    line = line.replace(f'callback_data="{button_name}"', f'callback_data="{new_callback_data}"')
-                f.write(line)
-                
         bot.send_message(message.chat.id, f'Callback data для кнопки "{button_name}" успешно обновлена на "{new_callback_data}"')
     except Button.DoesNotExist:
         bot.send_message(message.chat.id, 'Кнопка не найдена')
@@ -239,3 +208,63 @@ def process_new_callback_data(message: Message, button_name: str) -> None:
         bot.send_message(message.chat.id, 'Произошла ошибка при обновлении callback data')
         logger.error(f'Ошибка при обновлении callback data: {e}')
 
+
+@admin_permission
+def analyze_and_fill_common_admin(callback_query: CallbackQuery) -> None:
+    """
+    Анализирует базу данных и заполняет файл common_admin.py функциями и callback данными
+    """
+    try:
+        # Получаем все группы кнопок
+        button_groups = ButtonGroup.objects.all()
+        
+        # Формируем базовый шаблон для common_admin.py
+        common_admin_template = """from bot import bot, logger
+from django.conf import settings
+from telebot.types import (
+    Message, 
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    CallbackQuery,
+)
+from bot.models import User, Button, ButtonGroup
+
+def main_menu(callback_query: CallbackQuery) -> None:
+    keyboard = InlineKeyboardMarkup()
+"""
+        
+        # Добавляем динамически сгенерированные кнопки для каждой группы
+        for group in button_groups:
+            buttons = Button.objects.filter(button_group=group)
+            if buttons.exists():
+                # Добавляем создание группы кнопок
+                common_admin_template += f"\n    # Группа кнопок: {group.name}\n"
+                
+                for button in buttons:
+                    # Добавляем кнопку
+                    common_admin_template += f"    keyboard.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))\n"
+                    
+                    # Создаем обработчик для кнопки
+                    common_admin_template += f"""
+def {button.button_name}_handler(callback_query: CallbackQuery) -> None:
+    bot.answer_callback_query(callback_query.id)
+    bot.send_message(callback_query.message.chat.id, '{button.button_text}')\n"""
+
+        # Записываем сгенерированный код в файл
+        with open('bot/handlers/common_admin.py', 'w', encoding='utf-8') as file:
+            file.write(common_admin_template)
+            
+        bot.send_message(
+            callback_query.message.chat.id,
+            'Файл common_admin.py успешно обновлен с новыми функциями и callback данными',
+            reply_markup=ADMIN_BUTTONS
+        )
+        logger.info('Файл common_admin.py успешно обновлен')
+        
+    except Exception as e:
+        bot.send_message(
+            callback_query.message.chat.id,
+            f'Произошла ошибка при обновлении файла: {str(e)}',
+            reply_markup=ADMIN_BUTTONS
+        )
+        logger.error(f'Ошибка при обновлении common_admin.py: {e}')

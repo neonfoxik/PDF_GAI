@@ -1,7 +1,8 @@
 from django.contrib import admin
 from .models import (
     User,
-    Button
+    Button,
+    ButtonGroup  # Добавлено для аналогии
 )
 
 class UserAdmin(admin.ModelAdmin):
@@ -11,10 +12,16 @@ class UserAdmin(admin.ModelAdmin):
     list_editable = ['has_plan',]
 
 class ButtonAdmin(admin.ModelAdmin):
-    list_display = ['button_name', 'button_group', 'number_str']
+    list_display = ['button_name', 'button_group']
     list_display_links = ['button_name',]
     search_fields = ['button_name', 'button_group']
-    list_editable = ['button_group', 'number_str']
+    list_editable = ['button_group']
+
+class ButtonGroupAdmin(admin.ModelAdmin):  # Новый класс для аналогии
+    list_display = ['name']
+    list_display_links = ['name']
+    search_fields = ['name']
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Button, ButtonAdmin)
+admin.site.register(ButtonGroup, ButtonGroupAdmin)  # Регистрация нового класса

@@ -22,5 +22,6 @@ create_button = InlineKeyboardButton(text="Создать кнопку", callbac
 edit_buttons = InlineKeyboardButton(text="Редактировать кнопки", callback_data="edit_buttons")
 edit_button_group = InlineKeyboardButton(text="Редактировать группы кнопок", callback_data="edit_group_button")
 load_file = InlineKeyboardButton(text="Загрузить документ", callback_data="load_file")
-ADMIN_BUTTONS.add(create_button).add(edit_buttons).add(load_file).add(edit_button_group)
+upload = InlineKeyboardButton(text="Обновить кнопки у пользователей", callback_data="upload_buttons")
+ADMIN_BUTTONS.add(create_button).add(edit_buttons).add(load_file).add(edit_button_group).add(upload)
 

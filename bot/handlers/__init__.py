@@ -14,7 +14,8 @@ from .admin.admin import (
     button_group_actions,
     delete_group_from_file,
     list_button_group,
-    cancellation_button
+    cancellation_button,
+    analyze_and_fill_common_admin
 )
 from .user.registration import (
     start_registration,
