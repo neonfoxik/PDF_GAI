@@ -2,6 +2,9 @@ from .common import (
     start,
     help_
 )
+from .common_admin import (
+    main_menu
+)
 from .admin.admin import (
     add_button,
     admin_menu,

@@ -5,7 +5,9 @@ from bot.texts import WE_ARE_WORKING, LC_TEXT
 from bot.models import User
 from django.conf import settings
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup
-
+from bot.handlers.common_admin import (
+    main_menu
+)
 
 def start_registration(message, delete=True):
     """ Функция для регистрации пользователей """
@@ -22,5 +24,4 @@ def start_registration(message, delete=True):
         keyboard.add(button)
         bot.send_message(chat_id=message.chat.id, text="Вы успешно зарегистрированы!", parse_mode='Markdown', reply_markup=keyboard)
     else:
-        # Пользователь уже зарегистрирован, можно добавить дополнительную логику, если нужно
-        pass
+        main_menu(message)

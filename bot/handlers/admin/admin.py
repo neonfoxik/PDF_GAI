@@ -79,7 +79,8 @@ def save_button_to_file(callback_query: CallbackQuery) -> None:
     text = button_text
     
     # Создаем новую кнопку в базе данных
-    new_button = Button(button_group=group_name, button_name=name, button_text=text)
+    button_group, created = ButtonGroup.objects.get_or_create(name=group_name, parent_button='', is_main_group=False)
+    new_button = Button(button_name=name, button_group=group_name, button_text=text)
     new_button.save()
     
     bot.answer_callback_query(callback_query.id, "Кнопка успешно создана!")
@@ -213,10 +214,9 @@ def process_new_callback_data(message: Message, button_name: str) -> None:
 @admin_permission
 def analyze_and_fill_common_admin(callback_query: CallbackQuery) -> None:
     """
-    Анализирует базу данных и заполняет файл common_admin.py функциями и callback данными
+    Анализирует базу данных и создает файл common_admin.py с обработчиками для всех кнопок
     """
-    try:
-        common_admin_template = """from bot import bot, logger
+    common_admin_template = """from bot import bot, logger
 from django.conf import settings
 from telebot.types import (
     Message, 
@@ -224,56 +224,70 @@ from telebot.types import (
     InlineKeyboardMarkup,
     CallbackQuery,
 )
-from bot.models import User, Button, ButtonGroup
+from bot.models import User, Button, ButtonGroup, Texts
 
-def main_menu(callback_query: CallbackQuery) -> None:
-    
 """
-        mainGroup = ButtonGroup.objects.filte(is_main_group=True)
-        buttons = Button.objects.filter(button_group=mainGroup.name)
-
-        if buttons.exists():
-            common_admin_template += f"\n   {mainGroup.name} = InlineKeyboardMarkup()\n"
-
-            for button in buttons:
-                common_admin_template += f"    {mainGroup.name}.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))\n"
-
-        button_groups = ButtonGroup.objects.all()
-                
-        for group in button_groups:
-            try:
-                keyboard_name = group.name
-                common_admin_template += f"\n    {keyboard_name} = InlineKeyboardMarkup()\n"
-                group_buttons = Button.objects.filter(button_group=group)
-                if group_buttons.exists():
-                    for button in group_buttons:
-                        common_admin_template += f"    {keyboard_name}.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))\n"
-                        common_admin_template += f"""
-def {button.button_name}_handler(callback_query: CallbackQuery) -> None:
     try:
-        bot.answer_callback_query(callback_query.id)
-        # Проверяем есть ли дочерние группы кнопок
-        child_group = ButtonGroup.objects.filter(parent_button__button_name='{button.button_name}').first()
-        if child_group:
+        # Создаем основное меню
+        mainGroup = ButtonGroup.objects.filter(is_main_group=True).first()
+        if not mainGroup:
+            raise Exception("Не найдена основная группа кнопок")
+
+        # Добавляем функцию main_menu
+        common_admin_template += """def main_menu(message) -> None:
+    try:
+        keyboard = InlineKeyboardMarkup()
+"""
+        main_buttons = Button.objects.filter(button_group=mainGroup.name)
+        for button in main_buttons:
+            common_admin_template += f"        keyboard.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))\n"
+        
+        common_admin_template += """        if isinstance(message, CallbackQuery):
             bot.edit_message_text(
-                chat_id=callback_query.message.chat.id,
-                message_id=callback_query.message.message_id,
-                text='Подменю {button.button_text}',
-                reply_markup=child_group.name_keyboard
+                chat_id=message.message.chat.id,
+                message_id=message.message.message_id,
+                text='Главное меню:',
+                reply_markup=keyboard
             )
         else:
-            # Если нет дочерних групп, просто отправляем сообщение
-            bot.send_message(callback_query.message.chat.id, 'Выбрана кнопка: {button.button_text}')
+            bot.send_message(
+                chat_id=message.chat.id,
+                text='Главное меню:',
+                reply_markup=keyboard
+            )
     except Exception as e:
-        logger.error(f'Ошибка в обработчике кнопки {button.button_name}: {{e}}')
-        bot.send_message(callback_query.message.chat.id, 'Произошла ошибка при обработке команды')
+        logger.error(f'Ошибка в main_menu: {e}')
 """
-            except Exception as e:
-                logger.error(f'Ошибка при создании клавиатуры для группы {group.name}: {e}')
-                continue
 
-
-
+        # Создаем обработчики для каждой кнопки
+        all_buttons = Button.objects.all()
+        for button in all_buttons:
+            common_admin_template += f"""
+def {button.button_name}_handler(callback_query: CallbackQuery) -> None:
+    try:
+        keyboard = InlineKeyboardMarkup()
+"""
+            # Проверяем есть ли дочерние кнопки
+            child_group = ButtonGroup.objects.filter(parent_button=button.button_name).first()
+            if child_group:
+                child_buttons = Button.objects.filter(button_group=child_group.name)
+                for child_button in child_buttons:
+                    common_admin_template += f"    keyboard.add(InlineKeyboardButton(text='{child_button.button_text}', callback_data='{child_button.button_name}'))\n"
+            # Добавляем кнопку возврата в главное меню
+            common_admin_template += f"""        
+            text = Texts.objects.filter(parent_button={button.button_name}).first()
+            display_text = text.txt_text
+            keyboard.add(InlineKeyboardButton(text='Главное меню', callback_data='main_menu'))
+            
+        bot.edit_message_text(
+            chat_id=callback_query.message.chat.id,
+            message_id=callback_query.message.message_id,
+            text=display_text,
+            reply_markup=keyboard
+        )
+    except Exception as e:
+        logger.error(f'Ошибка в обработчике : e')
+"""
 
         # Записываем сгенерированный код в файл
         with open('bot/handlers/common_admin.py', 'w', encoding='utf-8') as file:
@@ -281,15 +295,15 @@ def {button.button_name}_handler(callback_query: CallbackQuery) -> None:
             
         bot.send_message(
             callback_query.message.chat.id,
-            'Файл common_admin.py успешно обновлен с новыми функциями и callback данными',
+            'Файл common_admin.py успешно обновлен с обработчиками для всех кнопок',
             reply_markup=ADMIN_BUTTONS
         )
         logger.info('Файл common_admin.py успешно обновлен')
         
-    except Exception as e:
+    except Exception as error:
         bot.send_message(
             callback_query.message.chat.id,
-            f'Произошла ошибка при обновлении файла: {str(e)}',
+            f'Произошла ошибка при обновлении файла: {str(error)}',
             reply_markup=ADMIN_BUTTONS
         )
-        logger.error(f'Ошибка при обновлении common_admin.py: {e}')
+        logger.error(f'Ошибка при обновлении common_admin.py: {error}')

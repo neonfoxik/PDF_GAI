@@ -29,10 +29,9 @@ class Button(models.Model):
         max_length=20,
         verbose_name='имя кнопки а также колбэк дата'
     )
-    button_group = models.ForeignKey(
-        'ButtonGroup',
-        on_delete=models.CASCADE,
-        verbose_name='группа кнопок'
+    button_group = models.CharField(
+        max_length=20,
+        verbose_name='имя группы кнопок'
     )
     button_text = models.CharField(
         max_length=100,
@@ -50,12 +49,11 @@ class Button(models.Model):
 class ButtonGroup(models.Model):
     name = models.CharField(
         primary_key=True,
-        max_length=40,
+        max_length=20,
         verbose_name='Имя группы кнопок'
     )
     parent_button = models.CharField(
-        primary_key=True,
-        max_length=40,
+        max_length=20,
         verbose_name='Имя родительской кнопки'
     )
     is_main_group = models.BooleanField(default=False)
@@ -77,10 +75,9 @@ class Texts(models.Model):
         max_length=4000,
         verbose_name='Текст кнопок'
     )
-    parent_button = models.ForeignKey(
-        'Button',
-        on_delete=models.CASCADE,
-        verbose_name='родительская кнопка'
+    parent_button = models.CharField(
+        max_length=20,
+        verbose_name='имя родительской кнопки'
     )
 
     class Meta:

@@ -6,14 +6,26 @@ from telebot.types import (
     InlineKeyboardMarkup,
     CallbackQuery,
 )
-from bot.models import User, Button, ButtonGroup
+from bot.models import User, Button, ButtonGroup, Texts
 
-def main_menu(callback_query: CallbackQuery) -> None:
-    keyboard = InlineKeyboardMarkup()
+def main_menu(message) -> None:
+    try:
+        keyboard = InlineKeyboardMarkup()
+        keyboard.add(InlineKeyboardButton(text='привет', callback_data='sdfasdasdf'))
+        if isinstance(message, CallbackQuery):
+            bot.edit_message_text(
+                chat_id=message.message.chat.id,
+                message_id=message.message.message_id,
+                text='Главное меню:',
+                reply_markup=keyboard
+            )
+        else:
+            bot.send_message(
+                chat_id=message.chat.id,
+                text='Главное меню:',
+                reply_markup=keyboard
+            )
+    except Exception as e:
+        logger.error(f'Ошибка в main_menu: {e}')
 
-    # Группа кнопок: sdfsdf
-    keyboard.add(InlineKeyboardButton(text='', callback_data='sdfsdf'))
 
-def sdfsdf_handler(callback_query: CallbackQuery) -> None:
-    bot.answer_callback_query(callback_query.id)
-    bot.send_message(callback_query.message.chat.id, '')

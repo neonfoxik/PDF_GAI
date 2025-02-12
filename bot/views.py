@@ -66,6 +66,6 @@ delete_group_from_file = bot.callback_query_handler(lambda c: c.data.startswith(
 list_button_group = bot.callback_query_handler(lambda c: c.data == 'edit_group_button')(list_button_group)
 analyze_and_fill_common_admin = bot.callback_query_handler(lambda c: c.data == 'upload_buttons')(analyze_and_fill_common_admin )
 
-
+main_menu = bot.callback_query_handler(lambda c: c.data == 'main_menu')(main_menu)
 
 
