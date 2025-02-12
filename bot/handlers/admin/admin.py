@@ -42,6 +42,7 @@ def validate_user_message(message: Message) -> Message:
     else:
         bot.send_message(message.chat.id, 'Название кнопки содержало некоректные символы измените его', reply_markup=ADMIN_BUTTONS)
         return None
+    
 """админ панель"""
 
 
