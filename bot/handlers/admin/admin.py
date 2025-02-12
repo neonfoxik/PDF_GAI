@@ -8,6 +8,11 @@ from bot.models import User, Button, ButtonGroup, Texts
 from bot.keyboards import SAVE_BUTTONS, ADMIN_BUTTONS
 
 
+button_data = {}
+button_group_data = {}
+isCreate_button = False
+
+
 def admin_permission(func):
     """
     Проверка прав администратора для доступа к функции.
@@ -31,7 +36,12 @@ def admin_permission(func):
 
     return wrapped
 
-
+def validate_user_message(message: Message) -> Message:
+    if message.text and len(message.text) > 0 and message.text.isalnum():  # Проверка на наличие специальных символов
+        return message
+    else:
+        bot.send_message(message.chat.id, 'Название кнопки содержало некоректные символы измените его', reply_markup=ADMIN_BUTTONS)
+        return None
 """админ панель"""
 
 
@@ -39,54 +49,119 @@ def admin_permission(func):
 def admin_menu(message: Message) -> None:
     bot.send_message(message.chat.id, 'Меню админки', reply_markup=ADMIN_BUTTONS)
 
-    """добавление кнопки"""
-
-
 @admin_permission
 def add_button(callback_query: CallbackQuery) -> None:
+    isCreate_button = True
     bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
-    bot.send_message(callback_query.message.chat.id, 'Укажите название группы кнопок английскими буквами')
-    bot.register_next_step_handler(callback_query.message, get_button_group_name)
+    get_or_create_button_group_name(callback_query)
+@admin_permission
+def get_or_create_button_group_name(callback_query: CallbackQuery) -> None:
+    try:
+        button_groups = ButtonGroup.objects.all()
+        keyboard = InlineKeyboardMarkup()
+        keyboard.add(InlineKeyboardButton(text='Создать новую группу', callback_data='create_new_group'))
+        if button_groups.exists():
+            for group in button_groups:
+                keyboard.add(InlineKeyboardButton(text=group.name, callback_data=f'select_group_{group.name}'))
+            bot.send_message(callback_query.message.chat.id, 'Выберите существующую группу или создайте новую, группу кнопок можно всегда изменить:', reply_markup=keyboard)
+        else:
+            button_data['group_name'] = message.text
+            
+            msg = bot.send_message(callback_query.message.chat.id, 'Укажите название кнопки английскими буквами')
+            bot.register_next_step_handler(msg, get_button_name)
+    except Exception as e:
+        logger.error(f'Ошибка при получении групп кнопок: {e}')
+        bot.send_message(message.chat.id, 'Произошла ошибка при получении групп кнопок')
+
 
 @admin_permission
-def get_button_group_name(message: Message) -> None:
-    global button_group_name
-    button_group_name = message.text
+def create_button_group(callback_query: CallbackQuery) -> None:
+    bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
+    bot.send_message(callback_query.message.chat.id, 'Укажите название группы кнопок английскими буквами')
+    bot.register_next_step_handler(callback_query.message, get_group_name)
+@admin_permission
+def get_group_name(message: Message) -> None:
+    button_group_data['group_name'] = message.text
+    keyboard = InlineKeyboardMarkup()
+    keyboard.add(InlineKeyboardButton(text="Просмотреть все кнопки", callback_data="view_all_buttons"))
+    keyboard.add(InlineKeyboardButton(text="Ввести название кнопки вручную", callback_data="enter_button_manually"))
+    bot.send_message(message.chat.id, 'Выберите способ указания родительской кнопки тоесть кнопки после нажатия на которую будет открываться меню с этими кнопками:'
+                     , reply_markup=keyboard)
+@admin_permission
+def view_all_buttons_in_button_group(callback_query: CallbackQuery) -> None:
+    try:
+        bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
+        all_buttons = Button.objects.all()
+        parent_buttons_groups = ButtonGroup.objects.values_list('parent_button', flat=True) 
+        parent_buttons_texts = Texts.objects.values_list('parent_button', flat=True)
+        all_parent_buttons = set(list(parent_buttons_groups) + list(parent_buttons_texts))
+        keyboard = InlineKeyboardMarkup()
+        for button in all_buttons:
+            if button.button_name not in all_parent_buttons:
+                keyboard.add(InlineKeyboardButton(
+                    text=f"{button.button_name} ({button.button_text})", 
+                    callback_data=f"select_parent_{button.button_name}"
+                ))
+        bot.send_message(callback_query.message.chat.id, 'Выберите кнопку которая будет родительской:', reply_markup=keyboard)
+    except Exception as e:
+        logger.error(f'Ошибка при получении списка кнопок: {e}')
+        bot.send_message(callback_query.message.chat.id, 'Произошла ошибка при получении списка кнопок')
+@admin_permission
+def enter_button_manually(callback_query: CallbackQuery) -> None:
+    msg = bot.send_message(callback_query.message.chat.id, 'Укажите название кнопоки которую хотите назначить в качестве родительской')
+    bot.register_next_step_handler(msg, save_button_grooup_in_django)
+@admin_permission
+def save_button_grooup_in_django(message: Message) -> None:
+    group_name = button_group_data.get('group_name')
+    parent_name = message.text
+    button_group, created = ButtonGroup.objects.get_or_create(name=group_name, parent_button=parent_name, is_main_group=False)
+    button_group.save()
+    if isCreate_button == False:
+        bot.send_message(message.chat.id, 'Кнопка успешно создана Меню админки', reply_markup=ADMIN_BUTTONS)
+    else:
+        button_data['group_name'] = group_name
+        bot.register_next_step_handler(message.chat.id, select_button_group_message)
+
+
+@admin_permission
+def select_button_group(callback_query: CallbackQuery) -> None:
+    group_name = callback_query.data.split('_')[2]
+    button_data['group_name'] = group_name
+    msg = bot.send_message(callback_query.message.chat.id, 'Укажите название кнопки английскими буквами')
+    bot.register_next_step_handler(msg, get_button_name)
+
+@admin_permission
+def select_button_group_message(message: Message) -> None:
     msg = bot.send_message(message.chat.id, 'Укажите название кнопки английскими буквами')
     bot.register_next_step_handler(msg, get_button_name)
 
 @admin_permission
 def get_button_name(message: Message) -> None:
-    global button_name
-    button_name = message.text
+    button_data['name'] = message.text
     msg = bot.send_message(message.chat.id, 'Укажите текст кнопки')
     bot.register_next_step_handler(msg, get_button_text)
-    
+
 @admin_permission
 def get_button_text(message: Message) -> None:
-    global button_text
-    button_text = message.text
+    button_data['text'] = message.text
     bot.send_message(message.chat.id, 'Хотите ли вы подтвердить создание кнопки?', reply_markup=SAVE_BUTTONS)
 
 @admin_permission
 def cancellation_button(callback_query: CallbackQuery) -> None:
     bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
     bot.send_message(callback_query.message.chat.id, 'Создание кнопки отменено', reply_markup=ADMIN_BUTTONS)
+
 @admin_permission
 def save_button_to_file(callback_query: CallbackQuery) -> None:
-    group_name = button_group_name
-    name = button_name
-    text = button_text
-    
-    # Создаем новую кнопку в базе данных
-    button_group, created = ButtonGroup.objects.get_or_create(name=group_name, parent_button='', is_main_group=False)
+    isCreate_button = False
+    group_name = button_data.get('group_name')
+    name = button_data.get('name')
+    text = button_data.get('text')
     new_button = Button(button_name=name, button_group=group_name, button_text=text)
     new_button.save()
-    
     bot.answer_callback_query(callback_query.id, "Кнопка успешно создана!")
     bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
     bot.send_message(callback_query.message.chat.id, 'Меню админки', reply_markup=ADMIN_BUTTONS)
-
 
 
 """список всех кнопок / груп кнопок"""
@@ -257,8 +332,9 @@ def main_menu(message) -> None:
         for group in all_groups:
             common_admin_template += f"""
 @bot.callback_query_handler(func=lambda call: call.data == "{group.parent_button}")
-def {group.name}_handler(call: types.CallbackQuery) -> None:
+def {group.name}_handler(call: CallbackQuery) -> None:
     try:
+        bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
         {group.name} = InlineKeyboardMarkup()
 """
             all_group_buttons = Button.objects.filter(button_group=group.name)
@@ -279,8 +355,9 @@ def {group.name}_handler(call: types.CallbackQuery) -> None:
         for text in all_texts:
             common_admin_template += f"""
 @bot.callback_query_handler(func=lambda call: call.data == "{text.parent_button}")
-def {text.name}_handler(call: types.CallbackQuery) -> None:
+def {text.name}_handler(call: CallbackQuery) -> None:
     try:
+        bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
         bot.send_message(call.message.chat.id, f'главное меню', reply_markup={text.name})
 
 """
@@ -309,3 +386,6 @@ def {text.name}_handler(call: types.CallbackQuery) -> None:
             reply_markup=ADMIN_BUTTONS
         )
         logger.error(f'Ошибка при обновлении common_admin.py: {error}')
+
+
+        

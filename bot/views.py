@@ -69,3 +69,10 @@ analyze_and_fill_common_admin = bot.callback_query_handler(lambda c: c.data == '
 main_menu = bot.callback_query_handler(lambda c: c.data == 'main_menu')(main_menu)
 
 
+view_all_buttons_in_button_group = bot.callback_query_handler(lambda c: c.data == 'view_all_buttons')(view_all_buttons_in_button_group)
+create_button_group = bot.callback_query_handler(lambda c: c.data == 'create_new_group')(create_button_group)
+enter_button_manually = bot.callback_query_handler(lambda c: c.data == 'enter_button_manually')(enter_button_manually)
+
+
+select_button_group = bot.callback_query_handler(lambda c: c.data.startswith('select_parent_'))(select_button_group)
+select_button_group = bot.callback_query_handler(lambda c: c.data.startswith('select_group_'))(select_button_group)
