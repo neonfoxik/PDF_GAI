@@ -234,60 +234,62 @@ from bot.models import User, Button, ButtonGroup, Texts
             raise Exception("Не найдена основная группа кнопок")
 
         # Добавляем функцию main_menu
-        common_admin_template += """def main_menu(message) -> None:
+        common_admin_template += f"""
+def main_menu(message) -> None:
     try:
-        keyboard = InlineKeyboardMarkup()
+        {mainGroup.name} = InlineKeyboardMarkup()
 """
         main_buttons = Button.objects.filter(button_group=mainGroup.name)
         for button in main_buttons:
-            common_admin_template += f"        keyboard.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))\n"
-        
-        common_admin_template += """        if isinstance(message, CallbackQuery):
-            bot.edit_message_text(
-                chat_id=message.message.chat.id,
-                message_id=message.message.message_id,
-                text='Главное меню:',
-                reply_markup=keyboard
-            )
-        else:
-            bot.send_message(
-                chat_id=message.chat.id,
-                text='Главное меню:',
-                reply_markup=keyboard
-            )
+            common_admin_template += f"""
+        {mainGroup.name}.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))
+        """
+        common_admin_template += f"""
+        bot.send_message(message.chat.id, f'главное меню', reply_markup={mainGroup.name})
+        """
+        common_admin_template += """
     except Exception as e:
         logger.error(f'Ошибка в main_menu: {e}')
 """
 
-        # Создаем обработчики для каждой кнопки
-        all_buttons = Button.objects.all()
-        for button in all_buttons:
+        # начало обработчика всех груп кнопок
+        all_groups = ButtonGroup.objects.filter(is_main_group=False)
+        for group in all_groups:
             common_admin_template += f"""
-def {button.button_name}_handler(callback_query: CallbackQuery) -> None:
+@bot.callback_query_handler(func=lambda call: call.data == "{group.parent_button}")
+def {group.name}_handler(call: types.CallbackQuery) -> None:
     try:
-        keyboard = InlineKeyboardMarkup()
+        {group.name} = InlineKeyboardMarkup()
 """
-            # Проверяем есть ли дочерние кнопки
-            child_group = ButtonGroup.objects.filter(parent_button=button.button_name).first()
-            if child_group:
-                child_buttons = Button.objects.filter(button_group=child_group.name)
-                for child_button in child_buttons:
-                    common_admin_template += f"    keyboard.add(InlineKeyboardButton(text='{child_button.button_text}', callback_data='{child_button.button_name}'))\n"
-            # Добавляем кнопку возврата в главное меню
-            common_admin_template += f"""        
-            text = Texts.objects.filter(parent_button={button.button_name}).first()
-            display_text = text.txt_text
-            keyboard.add(InlineKeyboardButton(text='Главное меню', callback_data='main_menu'))
-            
-        bot.edit_message_text(
-            chat_id=callback_query.message.chat.id,
-            message_id=callback_query.message.message_id,
-            text=display_text,
-            reply_markup=keyboard
-        )
+            all_group_buttons = Button.objects.filter(button_group=group.name)
+            for button in all_group_buttons:
+                common_admin_template += f"""
+        {group.name}.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))
+                """
+            common_admin_template += f"""
+        bot.send_message(call.message.chat.id, f'главное меню', reply_markup={group.name})
+"""
+            common_admin_template +="""
     except Exception as e:
-        logger.error(f'Ошибка в обработчике : e')
+        logger.error(f'Ошибка в обработчике : {e}')
 """
+
+        #начало обработчика всех текстов
+        all_texts = Texts.objects.all()
+        for text in all_texts:
+            common_admin_template += f"""
+@bot.callback_query_handler(func=lambda call: call.data == "{text.parent_button}")
+def {text.name}_handler(call: types.CallbackQuery) -> None:
+    try:
+        bot.send_message(call.message.chat.id, f'главное меню', reply_markup={text.name})
+
+"""
+            common_admin_template +="""
+    except Exception as e:
+        logger.error(f'Ошибка в обработчике : {e}')
+"""
+
+        #обработчик документов
 
         # Записываем сгенерированный код в файл
         with open('bot/handlers/common_admin.py', 'w', encoding='utf-8') as file:
