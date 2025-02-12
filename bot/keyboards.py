@@ -24,3 +24,4 @@ edit_button_group = InlineKeyboardButton(text="Редактировать гру
 load_file = InlineKeyboardButton(text="Загрузить документ", callback_data="load_file")
 ADMIN_BUTTONS.add(create_button).add(edit_buttons).add(load_file).add(edit_button_group)
 
+

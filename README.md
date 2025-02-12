@@ -13,6 +13,7 @@ BOT_NAME=
 BOT_TOKEN=
 OWNER_ID=
 HOOK=
+SRS=
 ```
 4. install requirements 'pip install -r requirements.txt'
 5. ngrok http 8000 link to HOOK in .env

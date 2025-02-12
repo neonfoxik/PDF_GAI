@@ -2,7 +2,6 @@ from django.db import models
 from django import utils
 
 
-
 class User(models.Model):
     telegram_id = models.CharField(
         primary_key=True,
@@ -37,6 +36,25 @@ class Button(models.Model):
         verbose_name='группа кнопок'
     )
     number_str = models.IntegerField()
+
+    class Meta:
+        verbose_name = 'Кнопка'
+        verbose_name_plural = 'Кнопки'
+
+    def __str__(self):
+        return self.button_name
+
+
+class Document(models.Model):
+    name = models.CharField(
+        max_length=40,
+    )
+    address = models.CharField(
+        max_length=40,
+    )
+    fields = models.CharField(
+        max_length=50,
+    )
 
     class Meta:
         verbose_name = 'Кнопка'
