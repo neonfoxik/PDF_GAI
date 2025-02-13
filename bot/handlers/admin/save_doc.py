@@ -1,9 +1,10 @@
 import os
 from functools import wraps
+from docx import Document
 
 
 from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
-from bot.models import Document
+from bot.models import Documents
 from bot.settings import SRS
 from bot import bot, logger
 
@@ -13,7 +14,7 @@ user_data = {}
 
 def change_documents(callback_query: CallbackQuery):
     user_id = callback_query.message.chat.id
-    documents = Document.objects.all()
+    documents = Documents.objects.all()
     buttons = InlineKeyboardMarkup(row_width=2)
     for document in documents:
         button = InlineKeyboardButton(document.name, callback_data=f"chsDoc_{document.address}")
@@ -30,8 +31,8 @@ def choose_move(callback_query: CallbackQuery):
     change_name = InlineKeyboardButton(text='Изменить название', callback_data=f"document_Name_{num}")
     change_fields = InlineKeyboardButton(text="Изменить поля", callback_data=f"document_Fields_{num}")
     change_document = InlineKeyboardButton(text="Изменить документ", callback_data=f"document_Content_{num}")
-    create_document_btn = InlineKeyboardButton(text="Создать пустой документ", callback_data=f"document_Create_{num}")
-    admin_markup.add(change_name, change_fields, change_document, create_document_btn)
+
+    admin_markup.add(change_name, change_fields, change_document)
 
 
 def changing(callback_query: CallbackQuery):
@@ -47,19 +48,16 @@ def changing(callback_query: CallbackQuery):
     elif act == "Fields":
         bot.send_message(callback_query.message, "Напишите новые поля")
         bot.register_next_step_handler(callback_query.message, change_fields)
-    elif act == "Create":
-        create_document()
-        bot.send_message(callback_query.message, "Пустой документ успешно создан")
     else:
         bot.send_message(callback_query.message, "Отправьте новый файл")
-        bot.register_next_step_handler(callback_query.message, change_documents)
+        bot.register_next_step_handler(callback_query.message, redc_document)
 
 
 def change_name(message):
     num = user_data.get(message.from_user.id)
     new_name = message.text
 
-    doc = Document.objects.get(address=num)
+    doc = Documents.objects.get(address=num)
     doc.name = new_name
     doc.save()
     bot.send_message(message.chat.id, "Название обновлено.")
@@ -70,14 +68,14 @@ def change_fields(message):
     num = user_data.get(message.from_user.id)
     fields = message.text
 
-    doc = Document.objects.get(address=num)
+    doc = Documents.objects.get(address=num)
     doc.fields = fields
     doc.save()
     bot.send_message(message.chat.id, "Поля обновлены обновлено.")
     del user_data[message.from_user.id]
 
 
-def change_document(message):
+def redc_document(message):
     num = user_data.get(message.from_user.id)
     fields = message.text
 
@@ -103,16 +101,17 @@ def change_document(message):
     del user_data[message.from_user.id]
 
 
-def create_document():
+def create_document(callback_query: CallbackQuery):
     global loc_counter
     loc_counter += 1
     doc = Document()
-    doc.save(SRS+str(loc_counter))
-    Document.objects.create(
-        name=loc_counter,
-        address=loc_counter,
+    doc.save(SRS+str(loc_counter)+".docx")
+    Documents.objects.create(
+        address=str(loc_counter),
+        name=str(loc_counter),
         fields=''
     )
+    bot.send_message(callback_query.message.chat.id, "Новый документ создан")
 
 
 

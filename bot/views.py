@@ -53,9 +53,10 @@ admin = bot.message_handler(commands=["admin"])(admin_menu)
 create_button = bot.callback_query_handler(lambda c: c.data == 'create_button')(add_button)
 save_button = bot.callback_query_handler(lambda c: c.data == 'save_button')(save_button_to_file)
 cancellation_button = bot.callback_query_handler(lambda c: c.data == 'cancellation')(cancellation_button)
-change_document = bot.callback_query_handler(lambda c: c.data == 'load_file')(change_document)
+change_documents = bot.callback_query_handler(lambda c: c.data == 'load_file')(change_documents)
 choose_move = bot.callback_query_handler(lambda c: c.data.startswith('chsDoc'))(choose_move)
 changing = bot.callback_query_handler(lambda c: c.data.startswith('document'))(changing)
+new_document = bot.callback_query_handler(lambda c: c.data == "create_new_document")(create_document)
 
 
 button_actions = bot.callback_query_handler(lambda c: c.data.startswith('list_'))(button_actions)
@@ -68,11 +69,6 @@ edit_button_menu = bot.callback_query_handler(lambda c: c.data.startswith('edit_
 button_group_actions = bot.callback_query_handler(lambda c: c.data.startswith('list_group_'))(button_group_actions)
 delete_group_from_file = bot.callback_query_handler(lambda c: c.data.startswith('delete_group_'))(delete_group_from_file)
 list_button_group = bot.callback_query_handler(lambda c: c.data == 'edit_group_button')(list_button_group)
-
-
-
-
-
 
 
 

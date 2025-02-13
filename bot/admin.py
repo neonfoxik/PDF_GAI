@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (
     User,
     Button,
-    Document,
+    Documents,
 
 )
 
@@ -22,10 +22,10 @@ class ButtonAdmin(admin.ModelAdmin):
 
 
 class DocumentsAdmin(admin.ModelAdmin):
-    list_display = ['name_for_customer', 'file_name', ]
-    list_display_links = ['name_for_customer', ]
+    list_display = ['address', 'name', ]
+    list_display_links = ['name', ]
 
 
 admin.site.register(User, UserAdmin)
-admin.site.register(Document, DocumentsAdmin)
+admin.site.register(Documents, DocumentsAdmin)
 admin.site.register(Button, ButtonAdmin)

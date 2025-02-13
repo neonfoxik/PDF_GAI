@@ -45,11 +45,11 @@ class Button(models.Model):
         return self.button_name
 
 
-class Document(models.Model):
-    name = models.CharField(
+class Documents(models.Model):
+    address = models.CharField(
         max_length=40,
     )
-    address = models.CharField(
+    name = models.CharField(
         max_length=40,
     )
     fields = models.CharField(
@@ -57,8 +57,8 @@ class Document(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Кнопка'
-        verbose_name_plural = 'Кнопки'
+        verbose_name = 'Документы'
+        verbose_name_plural = 'Документы'
 
     def __str__(self):
-        return self.button_name
+        return self.address
