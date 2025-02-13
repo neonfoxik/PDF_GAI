@@ -9,7 +9,6 @@ Telegram bot with ai chat
 ```.venv\Scripts\activate```
 5. create .env file with 
 ```python3
-BOT_NAME=
 BOT_TOKEN=
 OWNER_ID=
 HOOK=
