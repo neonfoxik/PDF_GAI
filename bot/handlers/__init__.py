@@ -23,9 +23,17 @@ from .admin.admin import (
     create_button_group,
     analyze_and_fill_common_admin,
     enter_button_manually,
-    view_all_buttons_in_button_group,
+    view_all_buttons_in_button_group
 )
+
 from .user.registration import (
     start_registration,
 )
 
+from .admin.save_doc import (
+    change_documents,
+    choose_move,
+    changing,
+    create_document,
+
+)

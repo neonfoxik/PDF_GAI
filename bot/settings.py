@@ -28,6 +28,7 @@ ROOT_URLCONF = 'AI.urls'  # Указываем путь к главному urls
 BOT_TOKEN = getenv("BOT_TOKEN")
 HOOK = getenv("HOOK")
 OWNER_ID = getenv("OWNER_ID")
+SRS = getenv("SRS")
 
 REQUESTS_AMOUNT_BASE = 10
 

@@ -1,6 +1,5 @@
 from django.db import models
 
-
 class User(models.Model):
     telegram_id = models.CharField(
         primary_key=True,
@@ -43,7 +42,25 @@ class Button(models.Model):
     def __str__(self):
         return self.button_name
 
+class Documents(models.Model):
+    address = models.CharField(
+        max_length=40,
+    )
+    name = models.CharField(
+        max_length=40,
+    )
+    fields = models.CharField(
+        max_length=50,
+    )
 
+    class Meta:
+        verbose_name = 'Документы'
+        verbose_name_plural = 'Документы'
+
+    def __str__(self):
+        return self.address
+
+      
 class ButtonGroup(models.Model):
     name = models.CharField(
         primary_key=True,
@@ -85,3 +102,4 @@ class Texts(models.Model):
 
     def __str__(self):
         return self.name_txt
+

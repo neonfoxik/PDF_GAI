@@ -44,7 +44,6 @@ def admin_permission(func):
 
     return wrapped
 
-
 def validate_user_message(message: Message) -> None:
     if message.text and len(message.text) > 0 and message.text.isalnum():  # Проверка на наличие специальных символов
         return message
@@ -55,6 +54,7 @@ def validate_user_message(message: Message) -> None:
 
 
 """админ панель"""
+
 
 
 @admin_permission
@@ -195,14 +195,14 @@ def save_button_grooup_in_django(message: Message) -> None:
         bot.register_next_step_handler(message.chat.id, select_button_group_message)
 
 
-"""создание кнопок"""
 
-
+"""Добавление кнопки"""
 @admin_permission
 def add_button(callback_query: CallbackQuery) -> None:
     button_state.is_create_button = True
     bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
     get_or_create_button_group_name(callback_query)
+
 
 
 @admin_permission
@@ -214,11 +214,11 @@ def select_button_group(callback_query: CallbackQuery) -> None:
     bot.register_next_step_handler(msg, get_button_name)
 
 
+
 @admin_permission
 def select_button_group_message(message: Message) -> None:
     msg = bot.send_message(message.chat.id, 'Укажите название кнопки английскими буквами', reply_markup=CANCELBUTTON)
     bot.register_next_step_handler(msg, get_button_name)
-
 
 @admin_permission
 def get_button_name(message: Message) -> None:
@@ -252,8 +252,9 @@ def save_button_to_file(callback_query: CallbackQuery) -> None:
     bot.send_message(callback_query.message.chat.id, 'Меню админки', reply_markup=ADMIN_BUTTONS)
 
 
-"""список всех кнопок / груп кнопок для редактирования"""
 
+
+"""список всех кнопок / груп кнопок для редактирования"""
 
 @admin_permission
 def list_buttons(callback_query: CallbackQuery) -> None:
@@ -289,9 +290,7 @@ def list_button_group(callback_query: CallbackQuery) -> None:
         bot.send_message(callback_query.message.chat.id, '⛔ Файл с кнопками не найден')
         logger.error('Файл с кнопками не найден')
 
-
 """редактирование груп кнопок"""
-
 
 @admin_permission
 def button_group_actions(callback_query: CallbackQuery) -> None:
@@ -303,6 +302,7 @@ def button_group_actions(callback_query: CallbackQuery) -> None:
     bot.send_message(callback_query.message.chat.id,
                      f'Выберите действие для группы {group_name} УДАЛЯЯ ГРУППУ КНОПКИ, У ВАС ОТВЯЖУТСЯ ВСЕ КНОПКИ С ДАННОЙ ГРУППОЙ, ЕСЛИ У ВАС ЕСТЬ КНОПКИ КОТОРЫЕ ВАМ НУЖНЫ НО ГРУППА ВАМ НЕ НУЖНА ПРЕДВАРИТЕЛЬНО ПЕРЕНЕСИТЕ ИХ',
                      reply_markup=keyboard1)
+
 
 
 @admin_permission
@@ -320,8 +320,7 @@ def delete_group_from_file(callback_query: CallbackQuery) -> None:
         logger.error('Файл с группами не найден')
 
 
-"""редактирование кнопок"""
-
+"""Редактирование кнопок"""
 
 @admin_permission
 def button_actions(callback_query: CallbackQuery) -> None:
@@ -358,6 +357,7 @@ def edit_button_menu(callback_query: CallbackQuery) -> None:
                                       callback_data=f"edit_group_{button_name}")
     EDIT_BUTTONS.add(edit_text).add(edit_group).add(edit_name)
     bot.send_message(callback_query.message.chat.id, 'меню редактирования кнопки', reply_markup=EDIT_BUTTONS)
+
 
 
 @admin_permission
