@@ -53,7 +53,10 @@ admin = bot.message_handler(commands=["admin"])(admin_menu)
 create_button = bot.callback_query_handler(lambda c: c.data == 'create_button')(add_button)
 save_button = bot.callback_query_handler(lambda c: c.data == 'save_button')(save_button_to_file)
 cancellation_button = bot.callback_query_handler(lambda c: c.data == 'cancellation')(cancellation_button)
-save_document = bot.callback_query_handler(lambda c: c.data == 'load_file')(save_document)
+change_document = bot.callback_query_handler(lambda c: c.data == 'load_file')(change_document)
+choose_move = bot.callback_query_handler(lambda c: c.data.startswith('chsDoc'))(choose_move)
+changing = bot.callback_query_handler(lambda c: c.data.startswith('document'))(changing)
+
 
 button_actions = bot.callback_query_handler(lambda c: c.data.startswith('list_'))(button_actions)
 edit_button_callback_name = bot.callback_query_handler(lambda c: c.data.startswith('edit_name_'))(edit_button_callback_name)

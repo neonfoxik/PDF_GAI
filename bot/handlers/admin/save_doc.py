@@ -27,10 +27,11 @@ def choose_move(callback_query: CallbackQuery):
     _, num = callback_query.data.split("_")
 
     admin_markup = InlineKeyboardMarkup()
-    change_name = InlineKeyboardButton(text='Изменить название', callback_data=f"chgDoc_Name_{num}")
-    change_fields = InlineKeyboardButton(text="Изменить поля", callback_data=f"chgDoc_Fields_{num}")
-    change_document = InlineKeyboardButton(text="Изменить документ", callback_data=f"chgDoc_Content_{num}")
-    admin_markup.add(change_name, change_fields, change_document)
+    change_name = InlineKeyboardButton(text='Изменить название', callback_data=f"document_Name_{num}")
+    change_fields = InlineKeyboardButton(text="Изменить поля", callback_data=f"document_Fields_{num}")
+    change_document = InlineKeyboardButton(text="Изменить документ", callback_data=f"document_Content_{num}")
+    create_document_btn = InlineKeyboardButton(text="Создать пустой документ", callback_data=f"document_Create_{num}")
+    admin_markup.add(change_name, change_fields, change_document, create_document_btn)
 
 
 def changing(callback_query: CallbackQuery):
@@ -43,9 +44,16 @@ def changing(callback_query: CallbackQuery):
     if act == "Name":
         bot.send_message(callback_query.message, "Напишите новое названия")
         bot.register_next_step_handler(callback_query.message, change_name)
-    if act == "Fields":
+    elif act == "Fields":
         bot.send_message(callback_query.message, "Напишите новые поля")
-        bot.register_next_step_handler(callback_query.message, )
+        bot.register_next_step_handler(callback_query.message, change_fields)
+    elif act == "Create":
+        create_document()
+        bot.send_message(callback_query.message, "Пустой документ успешно создан")
+    else:
+        bot.send_message(callback_query.message, "Отправьте новый файл")
+        bot.register_next_step_handler(callback_query.message, change_documents)
+
 
 def change_name(message):
     num = user_data.get(message.from_user.id)
@@ -95,11 +103,16 @@ def change_document(message):
     del user_data[message.from_user.id]
 
 
-def create_document(callback_query: CallbackQuery):
+def create_document():
     global loc_counter
     loc_counter += 1
-
-
+    doc = Document()
+    doc.save(SRS+str(loc_counter))
+    Document.objects.create(
+        name=loc_counter,
+        address=loc_counter,
+        fields=''
+    )
 
 
 

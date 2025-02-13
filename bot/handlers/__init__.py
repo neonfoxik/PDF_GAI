@@ -22,3 +22,8 @@ from .user.registration import (
     start_registration,
 )
 
+from .admin.save_doc import (
+    change_document,
+    choose_move,
+    changing
+)
