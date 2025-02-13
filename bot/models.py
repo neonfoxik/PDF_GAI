@@ -1,6 +1,4 @@
 from django.db import models
-from django import utils
-
 
 
 class User(models.Model):
@@ -38,13 +36,13 @@ class Button(models.Model):
         verbose_name='текст кнопки'
     )
 
-
     class Meta:
         verbose_name = 'Кнопка'
         verbose_name_plural = 'Кнопки'
 
     def __str__(self):
         return self.button_name
+
 
 class ButtonGroup(models.Model):
     name = models.CharField(
@@ -64,6 +62,7 @@ class ButtonGroup(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Texts(models.Model):
     name_txt = models.CharField(

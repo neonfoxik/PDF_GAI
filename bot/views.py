@@ -55,24 +55,29 @@ save_button = bot.callback_query_handler(lambda c: c.data == 'save_button')(save
 cancellation_button = bot.callback_query_handler(lambda c: c.data == 'cancellation')(cancellation_button)
 
 button_actions = bot.callback_query_handler(lambda c: c.data.startswith('list_'))(button_actions)
-edit_button_callback_name = bot.callback_query_handler(lambda c: c.data.startswith('edit_name_'))(edit_button_callback_name)
+edit_button_callback_name = bot.callback_query_handler(lambda c: c.data.startswith('edit_name_')) \
+    (edit_button_callback_name)
 
-delete_button_from_file = bot.callback_query_handler(lambda c: c.data.startswith('delete_button_'))(delete_button_from_file)
+delete_button_from_file = bot.callback_query_handler(lambda c: c.data.startswith('delete_button_')) \
+    (delete_button_from_file)
 list_buttons = bot.callback_query_handler(lambda c: c.data == 'edit_buttons')(list_buttons)
 edit_button_menu = bot.callback_query_handler(lambda c: c.data.startswith('edit_button_'))(edit_button_menu)
 
 button_group_actions = bot.callback_query_handler(lambda c: c.data.startswith('list_group_'))(button_group_actions)
-delete_group_from_file = bot.callback_query_handler(lambda c: c.data.startswith('delete_group_'))(delete_group_from_file)
+delete_group_from_file = bot.callback_query_handler(lambda c: c.data.startswith('delete_group_'))(
+    delete_group_from_file)
 list_button_group = bot.callback_query_handler(lambda c: c.data == 'edit_group_button')(list_button_group)
-analyze_and_fill_common_admin = bot.callback_query_handler(lambda c: c.data == 'upload_buttons')(analyze_and_fill_common_admin )
+analyze_and_fill_common_admin = bot.callback_query_handler(lambda c: c.data == 'upload_buttons') \
+    (analyze_and_fill_common_admin)
 
 main_menu = bot.callback_query_handler(lambda c: c.data == 'main_menu')(main_menu)
 
-
-view_all_buttons_in_button_group = bot.callback_query_handler(lambda c: c.data == 'view_all_buttons')(view_all_buttons_in_button_group)
+view_all_buttons_in_button_group = bot.callback_query_handler(lambda c: c.data == 'view_all_buttons') \
+    (view_all_buttons_in_button_group)
 create_button_group = bot.callback_query_handler(lambda c: c.data == 'create_new_group')(create_button_group)
 enter_button_manually = bot.callback_query_handler(lambda c: c.data == 'enter_button_manually')(enter_button_manually)
 
-
+select_buttongroup_increategroup = bot.callback_query_handler(
+    lambda c: c.data.startswith('select_parent_increategroup_'))(select_buttongroup_increategroup)
 select_button_group = bot.callback_query_handler(lambda c: c.data.startswith('select_parent_'))(select_button_group)
 select_button_group = bot.callback_query_handler(lambda c: c.data.startswith('select_group_'))(select_button_group)
