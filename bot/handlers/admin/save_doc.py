@@ -27,12 +27,13 @@ def choose_move(callback_query: CallbackQuery):
     user_id = callback_query.message.chat.id
     _, num = callback_query.data.split("_")
 
-    admin_markup = InlineKeyboardMarkup()
+    admin_markup = InlineKeyboardMarkup(row_width=1)
     change_name = InlineKeyboardButton(text='Изменить название', callback_data=f"document_Name_{num}")
     change_fields = InlineKeyboardButton(text="Изменить поля", callback_data=f"document_Fields_{num}")
     change_document = InlineKeyboardButton(text="Изменить документ", callback_data=f"document_Content_{num}")
-
-    admin_markup.add(change_name, change_fields, change_document)
+    del_document = InlineKeyboardButton(text="Удалить документ", callback_data=f"document_Delete_{num}")
+    admin_markup.add(change_name, change_fields, change_document, del_document)
+    bot.send_message(user_id, text="Что нужно сделать с этим документом?", reply_markup=admin_markup)
 
 
 def changing(callback_query: CallbackQuery):
@@ -43,13 +44,17 @@ def changing(callback_query: CallbackQuery):
     user_data[user_id] = num
 
     if act == "Name":
-        bot.send_message(callback_query.message, "Напишите новое названия")
+        bot.send_message(user_id, "Напишите новое названия")
         bot.register_next_step_handler(callback_query.message, change_name)
     elif act == "Fields":
-        bot.send_message(callback_query.message, "Напишите новые поля")
+        bot.send_message(user_id, "Напишите новые поля")
         bot.register_next_step_handler(callback_query.message, change_fields)
+    elif act == "Delete":
+        delete_document(num)
+        bot.send_message(user_id, "Документ успешно удален")
+        del user_data[callback.message.from_user.id]
     else:
-        bot.send_message(callback_query.message, "Отправьте новый файл")
+        bot.send_message(user_id, "Отправьте новый файл")
         bot.register_next_step_handler(callback_query.message, redc_document)
 
 
@@ -73,6 +78,16 @@ def change_fields(message):
     doc.save()
     bot.send_message(message.chat.id, "Поля обновлены обновлено.")
     del user_data[message.from_user.id]
+
+
+def delete_document(num):
+    Documents.objects.get(address=num).delete()
+    try:
+        os.remove(SRS+num+".docx")
+    except:
+        pass
+
+
 
 
 def redc_document(message):

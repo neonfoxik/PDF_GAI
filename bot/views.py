@@ -55,7 +55,7 @@ save_button = bot.callback_query_handler(lambda c: c.data == 'save_button')(save
 cancellation_button = bot.callback_query_handler(lambda c: c.data == 'cancellation')(cancellation_button)
 change_documents = bot.callback_query_handler(lambda c: c.data == 'load_file')(change_documents)
 choose_move = bot.callback_query_handler(lambda c: c.data.startswith('chsDoc'))(choose_move)
-changing = bot.callback_query_handler(lambda c: c.data.startswith('document'))(changing)
+changing = bot.callback_query_handler(lambda c: c.data.startswith('document_'))(changing)
 new_document = bot.callback_query_handler(lambda c: c.data == "create_new_document")(create_document)
 
 
