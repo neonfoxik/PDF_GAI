@@ -45,12 +45,14 @@ class Button(models.Model):
 class Documents(models.Model):
     address = models.CharField(
         max_length=40,
+        primary_key=True
     )
     name = models.CharField(
         max_length=40,
     )
-    fields = models.CharField(
-        max_length=50,
+    parent_button = models.CharField(
+        max_length=20,
+        verbose_name='Имя родительской кнопки'
     )
 
     class Meta:
@@ -60,7 +62,27 @@ class Documents(models.Model):
     def __str__(self):
         return self.address
 
-      
+
+class ParsValues(models.Model):
+    world_value = models.CharField(
+        primary_key=True,
+        max_length=60,
+        verbose_name='Переменная в ворлде'
+    )
+    user_text = models.CharField(
+        max_length=20,
+        verbose_name='текст который видит пользователь'
+    )
+
+    class Meta:
+        verbose_name = 'Переменная'
+        verbose_name_plural = 'Переменные'
+
+    def __str__(self):
+        return self.world_value
+
+
+
 class ButtonGroup(models.Model):
     name = models.CharField(
         primary_key=True,
