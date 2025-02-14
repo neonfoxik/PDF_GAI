@@ -63,6 +63,9 @@ def button_admin_menu(callback_query: CallbackQuery) -> None:
 @admin_permission
 def documents_admin_menu(callback_query: CallbackQuery) -> None:
     bot.send_message(callback_query.message.chat.id, 'Документы', reply_markup=ADMIN_BUTTONS_DOC)
+@admin_permission
+def texts_admin_menu(callback_query: CallbackQuery) -> None:
+    bot.send_message(callback_query.message.chat.id, 'Тексты', reply_markup=ADMIN_BUTTONS_DOC)
 
 """создание групп кнопок"""
 

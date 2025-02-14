@@ -23,7 +23,10 @@ from .admin.admin import (
     create_button_group,
     analyze_and_fill_common_admin,
     enter_button_manually,
-    view_all_buttons_in_button_group
+    view_all_buttons_in_button_group,
+    texts_admin_menu,
+    documents_admin_menu,
+    button_admin_menu
 )
 
 from .user.registration import (

@@ -87,3 +87,6 @@ select_buttongroup_increategroup = bot.callback_query_handler(
 select_button_group = bot.callback_query_handler(lambda c: c.data.startswith('select_parent_'))(select_button_group)
 select_button_group = bot.callback_query_handler(lambda c: c.data.startswith('select_group_'))(select_button_group)
 
+texts_admin_menu = bot.callback_query_handler(lambda c: c.data == 'texts_actions')(texts_admin_menu)
+documents_admin_menu = bot.callback_query_handler(lambda c: c.data == 'documents_actions')(documents_admin_menu)
+button_admin_menu = bot.callback_query_handler(lambda c: c.data == 'buttons_actions')(button_admin_menu)
