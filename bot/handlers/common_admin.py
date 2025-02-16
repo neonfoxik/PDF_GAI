@@ -18,6 +18,7 @@ def main_menu(message) -> None:
     except Exception as e:
         logger.error(f'Ошибка в main_menu: {e}')
 
+
 @bot.callback_query_handler(func=lambda call: call.data == "")
 def dhhdhdhdh_handler(call: CallbackQuery) -> None:
     try:
@@ -28,6 +29,7 @@ def dhhdhdhdh_handler(call: CallbackQuery) -> None:
 
     except Exception as e:
         logger.error(f'Ошибка в обработчике : {e}')
+
 
 @bot.callback_query_handler(func=lambda call: call.data == "")
 def hdhdhdhdhdj_handler(call: CallbackQuery) -> None:

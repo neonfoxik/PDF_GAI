@@ -42,9 +42,6 @@ MENU_LIST = [
 
 BOT_COMMANDS = [
     BotCommand("start", "Меню 📋 / 🔄"),
-    BotCommand("balance", "История транзакций 👀"),
-    BotCommand("help", "Помощь 🆘"),
-    BotCommand("clear", "Очистить контекст 🧹"),
 ]
 
 # Application definition

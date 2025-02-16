@@ -34,10 +34,11 @@ ADMIN_BUTTONS_BUTTON.add(create_button).add(edit_buttons).add(create_button_grou
     .add(admin_main_menu)
 
 ADMIN_BUTTONS_DOC = InlineKeyboardMarkup()
+add_doc = InlineKeyboardButton(text="Создать документ", callback_data="add_new_doc")
 new_document = InlineKeyboardButton(text="Создать пустой документ", callback_data="create_new_document")
 load_file = InlineKeyboardButton(text="Редактировать документы", callback_data="load_file")
 admin_main_menu = InlineKeyboardButton(text="Вернуться в главное меню администратора", callback_data="admin_menu")
-ADMIN_BUTTONS_DOC.add(new_document).add(load_file).add(admin_main_menu)
+ADMIN_BUTTONS_DOC.add(new_document).add(load_file).add(admin_main_menu).add(add_doc)
 
 CANCELBUTTON = InlineKeyboardMarkup()
 cancellation = InlineKeyboardButton(text="Отмена", callback_data="cancellation")
