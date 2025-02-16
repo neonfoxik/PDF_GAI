@@ -39,6 +39,13 @@ load_file = InlineKeyboardButton(text="Редактировать докумен
 admin_main_menu = InlineKeyboardButton(text="Вернуться в главное меню администратора", callback_data="admin_menu")
 ADMIN_BUTTONS_DOC.add(new_document).add(load_file).add(admin_main_menu)
 
+ADMIN_BUTTONS_TXT = InlineKeyboardMarkup()
+new_text = InlineKeyboardButton(text="Новый текст", callback_data="create_new_text")
+edit_text = InlineKeyboardButton(text="Редактировать тексты", callback_data="edit_text")
+admin_main_menu = InlineKeyboardButton(text="Вернуться в главное меню администратора", callback_data="admin_menu")
+ADMIN_BUTTONS_TXT.add(new_text).add(load_file).add(admin_main_menu)
+
+
 CANCELBUTTON = InlineKeyboardMarkup()
 cancellation = InlineKeyboardButton(text="Отмена", callback_data="cancellation")
 CANCELBUTTON.add(cancellation)

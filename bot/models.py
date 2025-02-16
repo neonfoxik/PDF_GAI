@@ -94,7 +94,7 @@ class ButtonGroup(models.Model):
         verbose_name='Имя родительской кнопки'
     )
     is_main_group = models.BooleanField(default=False)
-
+    is_document = models.BooleanField(default=False)
     class Meta:
         verbose_name = 'Группа кнопок'
         verbose_name_plural = 'Группы кнопок'

@@ -2,13 +2,13 @@ from .common import (
     start,
     help_
 )
-from .common_admin import (
+from .common_text import (
     main_menu
 )
 from .admin.admin import (
     add_button,
     admin_menu,
-    select_buttongroup_increategroup,
+    select_buttongroup_in_create_group,
     save_button_to_file,
     list_buttons,
     delete_button_from_file,
@@ -22,13 +22,14 @@ from .admin.admin import (
     cancellation_button,
     create_button_group,
     analyze_and_fill_common_admin,
-    enter_button_manually,
     view_all_buttons_in_button_group,
     texts_admin_menu,
     documents_admin_menu,
     button_admin_menu,
     admin_menu_call,
-    view_button_group_in_select
+    view_button_group_in_select,
+    edit_group,
+    edit_group_name
 )
 
 from .user.registration import (
