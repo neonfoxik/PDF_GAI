@@ -1,6 +1,9 @@
 from .common import (
     start,
-    help_
+    help_,
+    is_sending_to_admin,
+    accept,
+
 )
 from .common_text import (
     main_menu
@@ -32,14 +35,13 @@ from .admin.admin import (
     edit_group_name
 )
 
-from .user.registration import (
-    start_registration,
-)
+
 
 from .admin.save_doc import (
     change_documents,
     choose_move,
     changing,
     create_document,
+    add_new_document,
 
 )

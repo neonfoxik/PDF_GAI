@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class User(models.Model):
     telegram_id = models.CharField(
         primary_key=True,
@@ -54,7 +55,10 @@ class Documents(models.Model):
         max_length=20,
         verbose_name='Имя родительской кнопки'
     )
-
+    fields = models.CharField(
+        max_length=35,
+        verbose_name="Поля"
+    )
     class Meta:
         verbose_name = 'Документы'
         verbose_name_plural = 'Документы'
