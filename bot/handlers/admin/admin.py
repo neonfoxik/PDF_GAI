@@ -143,14 +143,20 @@ def create_button_group(callback_query: CallbackQuery) -> None:
         bot.register_next_step_handler(msg, get_group_name)
     except Exception as e:
         logger.error(f'Ошибка при создании группы кнопок: {e}')
-        msg = bot.send_message(callback_query.message.chat.id, 'Укажите название группы кнопок английскими буквами',
-                               reply_markup=CANCELBUTTON)
-        bot.register_next_step_handler(msg, get_group_name)
-
 
 @admin_permission
 def get_group_name(message: Message) -> None:
     button_group_data['group_name'] = message.text
+    keyboard = InlineKeyboardMarkup()
+    keyboard.add(InlineKeyboardButton(text="Для документов", callback_data="is_document_True"))
+    keyboard.add(InlineKeyboardButton(text="Не для документов", callback_data="is_document_False"))
+    keyboard.add(InlineKeyboardButton(text="Отмена", callback_data="cancellation"))
+    bot.send_message(message.chat.id, 'Выберите в каком меню будет находиться ваша группа кнопок',
+                     reply_markup=keyboard)
+@admin_permission
+def get_is_document_group(callback_query: CallbackQuery) -> None:
+    is_document = callback_query.data.split('_')[2]
+    button_group_data['is_document'] = is_document
     all_buttons = Button.objects.all()
     all_groups = ButtonGroup.objects.all()
     if all_buttons.exists():
@@ -158,22 +164,21 @@ def get_group_name(message: Message) -> None:
         keyboard.add(InlineKeyboardButton(text="Просмотреть все кнопки", callback_data="view_all_buttons"))
         keyboard.add(InlineKeyboardButton(text="Отмена", callback_data="cancellation"))
         try:
-            bot.send_message(message.chat.id, 'Выберите способ указания родительской кнопки тоесть кнопки после'
-                                              f' нажатия на которую будет открываться меню с этими кнопками '
-                                              f'{button_state.is_create_button}',
+            bot.send_message(callback_query.message.chat.id, 'Выберите способ указания родительской кнопки тоесть '
+                                            f'кнопки после нажатия на которую будет открываться меню с этими кнопками',
                              reply_markup=keyboard)
         except Exception as e:
             logger.error(f'Ошибка при отправке сообщения в get_group_name: {e}')
     else:
         if all_groups.exists():
             try:
-                bot.send_message(message.chat.id,
+                bot.send_message(callback_query.message.chat.id,
                                  'у вас нет зарегестрированых кнопок: так что группе кнопок будет присвоено пустое '
                                  'значение, в качестве значения, в поле родительская кнопка, его всегда можно изменить в '
                                  'настройках')
                 group_name = button_group_data.get('group_name')
                 button_group, created = ButtonGroup.objects.get_or_create(name=group_name, parent_button="",
-                                                                          is_main_group=False)
+                                                                          is_main_group=False, is_document=is_document)
                 button_group.save()
                 if button_state.is_create_button == True:
                     button_data['group_name'] = group_name
@@ -184,18 +189,19 @@ def get_group_name(message: Message) -> None:
                 logger.error(f'Ошибка при отправке сообщения в get_group_name: {e}')
         else:
             try:
-                bot.send_message(message.chat.id,
+                bot.send_message(callback_query.message.chat.id,
                                  'у вас нет зарегестрированых групп кнопок: так что группе кнопок будет присвоено значение '
                                  'Главное меню')
                 group_name = button_group_data.get('group_name')
                 button_group, created = ButtonGroup.objects.get_or_create(name=group_name, parent_button="main_menu",
-                                                                          is_main_group=True)
+                                                                          is_main_group=True, is_document=is_document)
                 button_group.save()
                 if button_state.is_create_button == True:
                     button_data['group_name'] = group_name
                     select_button_group_message(message)
                 else:
-                    admin_menu(message)
+                    bot.send_message(callback_query.message.chat.id, 'Главное меню админа',
+                                     reply_markup=ADMIN_BUTTONS_MAIN)
             except Exception as e:
                 logger.error(f'Ошибка при отправке сообщения в get_group_name: {e}')
 
@@ -244,8 +250,9 @@ def view_all_buttons_in_button_group(callback_query: CallbackQuery) -> None:
 def select_buttongroup_in_create_group(callback_query: CallbackQuery) -> None:
     parent_name = callback_query.data.split('_')[5]
     group_name = button_group_data.get('group_name')
+    is_document = button_group_data.get('is_document')
     button_group, created = ButtonGroup.objects.get_or_create(name=group_name, parent_button=parent_name,
-                                                              is_main_group=False)
+                                                              is_main_group=False, is_document=is_document)
     button_group.save()
     try:
         bot.send_message(callback_query.message.chat.id, 'Группа кнопок успешно создана Меню админки',

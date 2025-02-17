@@ -32,13 +32,6 @@ SRS = getenv("SRS")
 
 REQUESTS_AMOUNT_BASE = 10
 
-MENU_LIST = [
-    ["Моя подписка", "plan"],
-    ["Выбор модели ИИ 🤖", "choice"],
-    ["Сгененировать изображение 🖼️", "image_gen"],
-    ["Оплатить 💸", "payment"],
-    ["Реферальная ссылка 🔗", "referal"],
-]
 
 BOT_COMMANDS = [
     BotCommand("start", "Меню 🔄"),

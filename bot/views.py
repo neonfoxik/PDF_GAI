@@ -49,7 +49,7 @@ Common
 start = bot.message_handler(commands=["start"])(start)
 help_ = bot.message_handler(commands=["help"])(help_)
 admin = bot.message_handler(commands=["admin"])(admin_menu)
-
+documents_main_menu = bot.message_handler(commands=["admin"])(documents_main_menu)
 
 admin_menu_call = bot.callback_query_handler(lambda c: c.data == "admin_menu")(admin_menu_call)
 create_button = bot.callback_query_handler(lambda c: c.data == 'create_button')(add_button)
@@ -92,7 +92,9 @@ create_button_group = bot.callback_query_handler(lambda c: c.data == 'create_new
 
 select_buttongroup_in_create_group = bot.callback_query_handler(
     lambda c: c.data.startswith('select_parent_in_create_group_'))(select_buttongroup_in_create_group)
-select_button_group = bot.callback_query_handler(lambda c: c.data.startswith('select_parent_in_button_'))(select_button_group)
+select_button_group = bot.callback_query_handler(lambda c: c.data.startswith('select_parent_in_button_'))\
+    (select_button_group)
+get_is_document_group = bot.callback_query_handler(lambda c: c.data.startswith('is_document_'))(get_is_document_group)
 select_button_group = bot.callback_query_handler(lambda c: c.data.startswith('select_group_'))(select_button_group)
 
 texts_admin_menu = bot.callback_query_handler(lambda c: c.data == 'texts_actions')(texts_admin_menu)

@@ -8,6 +8,9 @@ from .common import (
 from .common_text import (
     main_menu
 )
+from .common_docx import (
+    documents_main_menu
+)
 from .admin.admin import (
     add_button,
     admin_menu,
@@ -32,7 +35,8 @@ from .admin.admin import (
     admin_menu_call,
     view_button_group_in_select,
     edit_group,
-    edit_group_name
+    edit_group_name,
+    get_is_document_group
 )
 
 
