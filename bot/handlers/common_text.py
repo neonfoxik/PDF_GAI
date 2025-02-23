@@ -11,13 +11,11 @@ from bot.models import User, Button, ButtonGroup, Texts
 
 def main_menu(message) -> None:
     try:
-        fgddsfgsdf = InlineKeyboardMarkup()
+        gfdsgdfsdfgsfdgs = InlineKeyboardMarkup()
 
-        fgddsfgsdf.add(InlineKeyboardButton(text='fgdsfdsgfdgfgsdfgds', callback_data='fsgdgfssfdgfgdsfgds'))
+        gfdsgdfsdfgsfdgs.add(InlineKeyboardButton(text='dfsgdfgsdfgsfdgs', callback_data='fdgsdfgsdsfgfdgs'))
         
-        fgddsfgsdf.add(InlineKeyboardButton(text='fdsggdfsfdgssdfg', callback_data='dsfgsfdgfdsggfdsgdfsfdgsdgfs'))
-        
-        bot.send_message(message.chat.id, f'главное меню', reply_markup=fgddsfgsdf)
+        bot.send_message(message.chat.id, f'главное меню', reply_markup=gfdsgdfsdfgsfdgs)
         
     except Exception as e:
         logger.error(f'Ошибка в main_menu: {e}')

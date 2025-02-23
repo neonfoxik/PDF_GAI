@@ -7,7 +7,7 @@ from telebot.types import (
     CallbackQuery,
 )
 from bot.models import User, Button, ButtonGroup
-from bot.handlers.common_admin import (
+from bot.handlers.common_text import (
     main_menu
 )
 from bot.texts import FAQ, LC_TEXT

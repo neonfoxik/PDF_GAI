@@ -49,7 +49,7 @@ Common
 start = bot.message_handler(commands=["start"])(start)
 help_ = bot.message_handler(commands=["help"])(help_)
 admin = bot.message_handler(commands=["admin"])(admin_menu)
-documents_main_menu = bot.message_handler(commands=["admin"])(documents_main_menu)
+documents_main_menu = bot.message_handler(commands=["documents_menu"])(documents_main_menu)
 
 admin_menu_call = bot.callback_query_handler(lambda c: c.data == "admin_menu")(admin_menu_call)
 create_button = bot.callback_query_handler(lambda c: c.data == 'create_button')(add_button)
@@ -80,9 +80,10 @@ delete_group_from_file = bot.callback_query_handler(lambda c: c.data.startswith(
 edit_group = bot.callback_query_handler(lambda c: c.data.startswith('edit_group_all_'))(edit_group)
 edit_group_name = bot.callback_query_handler(lambda c: c.data.startswith('edit_group_name_'))(edit_group_name)
 list_button_group = bot.callback_query_handler(lambda c: c.data == 'edit_group_button')(list_button_group)
-analyze_and_fill_common_admin = bot.callback_query_handler(lambda c: c.data == 'upload_buttons') \
+analyze_and_fill_common_admin = bot.callback_query_handler(lambda c: c.data == 'upload_buttons_txt') \
     (analyze_and_fill_common_admin)
-
+analyze_and_fill_common_admin_docx = bot.callback_query_handler(lambda c: c.data == 'upload_buttons_docx') \
+    (analyze_and_fill_common_admin_docx)
 main_menu = bot.callback_query_handler(lambda c: c.data == 'main_menu')(main_menu)
 
 view_all_buttons_in_button_group = bot.callback_query_handler(lambda c: c.data == 'view_all_buttons') \
@@ -92,8 +93,8 @@ create_button_group = bot.callback_query_handler(lambda c: c.data == 'create_new
 
 select_buttongroup_in_create_group = bot.callback_query_handler(
     lambda c: c.data.startswith('select_parent_in_create_group_'))(select_buttongroup_in_create_group)
-select_button_group = bot.callback_query_handler(lambda c: c.data.startswith('select_parent_in_button_'))\
-    (select_button_group)
+select_buttongroup_in_create_button = bot.callback_query_handler(lambda c: c.data.startswith('select_parent_in_button_'))\
+    (select_buttongroup_in_create_button)
 get_is_document_group = bot.callback_query_handler(lambda c: c.data.startswith('is_document_'))(get_is_document_group)
 select_button_group = bot.callback_query_handler(lambda c: c.data.startswith('select_group_'))(select_button_group)
 
