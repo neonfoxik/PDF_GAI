@@ -59,8 +59,12 @@ change_documents = bot.callback_query_handler(lambda c: c.data == 'load_file')(c
 choose_move = bot.callback_query_handler(lambda c: c.data.startswith('chsDoc'))(choose_move)
 changing = bot.callback_query_handler(lambda c: c.data.startswith('document_'))(changing)
 new_document = bot.callback_query_handler(lambda c: c.data == "create_new_document")(create_document)
-view_button_group_in_select = bot.callback_query_handler(lambda c: c.data == "view_button_group_in_select")\
-    (view_button_group_in_select)
+select_txt_or_docx_in_view_button_group = bot.callback_query_handler\
+    (lambda c: c.data == "select_txt_or_docx_in_view_button_group")(select_txt_or_docx_in_view_button_group)
+view_button_group_in_select_txt = bot.callback_query_handler(lambda c: c.data == "view_button_group_in_select_txt")\
+    (view_button_group_in_select_txt)
+view_button_group_in_select_docx = bot.callback_query_handler(lambda c: c.data == "view_button_group_in_select_docx")\
+    (view_button_group_in_select_docx)
 is_sending_to_admin = bot.callback_query_handler(lambda c: c.data.startswith('confirm'))(is_sending_to_admin)
 accept = bot.callback_query_handler(lambda c: c.data.startswith("accept"))(accept)
 add_new_document = bot.callback_query_handler(lambda c: c.data == "add_new_doc")(add_new_document)
