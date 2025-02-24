@@ -104,7 +104,7 @@ def get_or_create_button_group_name(callback_query: CallbackQuery) -> None:
         keyboard = InlineKeyboardMarkup()
         keyboard.add(InlineKeyboardButton(text='Создать новую группу', callback_data='create_new_group'))
         keyboard.add(InlineKeyboardButton(text="Просмотреть существующие группы кнопок",
-                                          callback_data="view_button_group_in_select"))
+                                          callback_data="select_txt_or_docx_in_view_button_group"))
         keyboard.add(InlineKeyboardButton(text="Отмена", callback_data="cancellation"))
         bot.send_message(callback_query.message.chat.id,
                          'Выберите существующую группу или создайте новую, группу кнопок можно всегда изменить:',
@@ -113,9 +113,21 @@ def get_or_create_button_group_name(callback_query: CallbackQuery) -> None:
         logger.error(f'Ошибка при получении групп кнопок: {e}')
         bot.send_message(callback_query.message.chat.id, 'Произошла ошибка при получении групп кнопок')
 
+
 @admin_permission
-def view_button_group_in_select(callback_query: CallbackQuery) -> None:
-    button_groups = ButtonGroup.objects.all()
+def select_txt_or_docx_in_view_button_group(callback_query: CallbackQuery) -> None:
+    keyboard = InlineKeyboardMarkup()
+    keyboard.add(InlineKeyboardButton(text='Посмотреть все группы кнопок для текстов'
+                                      , callback_data='view_button_group_in_select_txt'))
+    keyboard.add(InlineKeyboardButton(text='Посмотреть все группы кнопок для документов'
+                                      , callback_data='view_button_group_in_select_docx'))
+    bot.send_message(callback_query.message.chat.id,
+                     'Выберите какой тип груп кнопок вы хотите посмотреть',
+                     reply_markup=keyboard)
+
+@admin_permission
+def view_button_group_in_select_docx(callback_query: CallbackQuery) -> None:
+    button_groups = ButtonGroup.objects.filter(is_document=True)
     keyboard = InlineKeyboardMarkup()
     keyboard.add(InlineKeyboardButton(text='Назад', callback_data='create_button'))
     if button_groups.exists():
@@ -130,9 +142,37 @@ def view_button_group_in_select(callback_query: CallbackQuery) -> None:
     else:
         try:
             bot.send_message(callback_query.message.chat.id, 'Нет доступных групп, создайте новую группу кнопок.')
-            create_button_group(callback_query)
+            bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
+            msg = bot.send_message(callback_query.message.chat.id, 'Укажите название группы кнопок английскими буквами',
+                                   reply_markup=CANCELBUTTON)
+            bot.register_next_step_handler(msg, get_group_name)
         except Exception as e:
             logger.error(f'Ошибка при отправке сообщения в view_button_group_in_select: {e}')
+
+@admin_permission
+def view_button_group_in_select_txt(callback_query: CallbackQuery) -> None:
+    button_groups = ButtonGroup.objects.filter(is_document=False)
+    keyboard = InlineKeyboardMarkup()
+    keyboard.add(InlineKeyboardButton(text='Назад', callback_data='create_button'))
+    if button_groups.exists():
+        for group in button_groups:
+            keyboard.add(InlineKeyboardButton(text=group.name, callback_data=f'select_group_{group.name}'))
+        try:
+            bot.send_message(callback_query.message.chat.id, 'Выберите группу кнопок к которой '
+                                                             'будет принадлежать ваша кнопка', reply_markup=keyboard)
+        except Exception as e:
+            logger.error(f'Ошибка при отправке сообщения в view_button_group_in_select: {e}')
+
+    else:
+        try:
+            bot.send_message(callback_query.message.chat.id, 'Нет доступных групп, создайте новую группу кнопок.')
+            bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
+            msg = bot.send_message(callback_query.message.chat.id, 'Укажите название группы кнопок английскими буквами',
+                                   reply_markup=CANCELBUTTON)
+            bot.register_next_step_handler(msg, get_group_name)
+        except Exception as e:
+            logger.error(f'Ошибка при отправке сообщения в view_button_group_in_select: {e}')
+
 
 @admin_permission
 def create_button_group(callback_query: CallbackQuery) -> None:
@@ -143,7 +183,6 @@ def create_button_group(callback_query: CallbackQuery) -> None:
         bot.register_next_step_handler(msg, get_group_name)
     except Exception as e:
         logger.error(f'Ошибка при создании группы кнопок: {e}')
-
 @admin_permission
 def get_group_name(message: Message) -> None:
     validated_message = validate_user_message(message)
