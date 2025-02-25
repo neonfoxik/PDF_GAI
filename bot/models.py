@@ -13,6 +13,11 @@ class User(models.Model):
     is_admin = models.BooleanField(default=False)
     has_plan = models.BooleanField(default=False)
 
+    message_context = models.JSONField(
+        verbose_name='История переписки пользователя',
+        null=True,
+        blank=True,
+    )
     def __str__(self):
         return str(self.name)
 
@@ -43,6 +48,46 @@ class Button(models.Model):
     def __str__(self):
         return self.button_name
 
+class Documents(models.Model):
+    address = models.CharField(
+        max_length=40,
+        primary_key=True
+    )
+    name = models.CharField(
+        max_length=40,
+    )
+    parent_button = models.CharField(
+        max_length=20,
+        verbose_name='Имя родительской кнопки'
+    )
+
+    class Meta:
+        verbose_name = 'Документы'
+        verbose_name_plural = 'Документы'
+
+    def __str__(self):
+        return self.address
+
+
+class ParsValues(models.Model):
+    world_value = models.CharField(
+        primary_key=True,
+        max_length=60,
+        verbose_name='Переменная в ворлде'
+    )
+    user_text = models.CharField(
+        max_length=20,
+        verbose_name='текст который видит пользователь'
+    )
+
+    class Meta:
+        verbose_name = 'Переменная'
+        verbose_name_plural = 'Переменные'
+
+    def __str__(self):
+        return self.world_value
+
+
 
 class ButtonGroup(models.Model):
     name = models.CharField(
@@ -55,7 +100,7 @@ class ButtonGroup(models.Model):
         verbose_name='Имя родительской кнопки'
     )
     is_main_group = models.BooleanField(default=False)
-
+    is_document = models.BooleanField(default=False)
     class Meta:
         verbose_name = 'Группа кнопок'
         verbose_name_plural = 'Группы кнопок'
@@ -85,3 +130,4 @@ class Texts(models.Model):
 
     def __str__(self):
         return self.name_txt
+
