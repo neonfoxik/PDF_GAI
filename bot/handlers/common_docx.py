@@ -1,5 +1,7 @@
 from bot import bot, logger
+from django.conf import settings
 from telebot.types import (
+    Message,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     CallbackQuery,

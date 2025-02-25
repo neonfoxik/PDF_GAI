@@ -28,25 +28,25 @@ def save_chat_history(user_id, messages):
 
 def generate_response(prompt, user_id):
     chat_history = get_chat_history(user_id)
-    
+
     # Добавляем системный промпт в начало истории, если история пуста
     if not chat_history:
         chat_history = [{"role": "system", "content": settings.ASSISTANT_PROMPT}]
-    
+
     # Добавляем новое сообщение пользователя
     chat_history.append({"role": "user", "content": prompt})
-    
+
     completion = openai.ChatCompletion.create(
         model="openai/gpt-4o-mini",
         messages=chat_history
     )
-    
+
     assistant_response = completion.choices[0].message.content
-    
+
     # Добавляем ответ ассистента в историю
     chat_history.append({"role": "assistant", "content": assistant_response})
-    
+
     # Сохраняем обновленную историю
     save_chat_history(user_id, chat_history)
-    
+
     return assistant_response

@@ -1,4 +1,5 @@
 import os
+from functools import wraps
 from docx import Document
 
 
@@ -6,7 +7,7 @@ from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKe
 from bot.keyboards import CANCELBUTTON, cancellation
 from bot.models import Documents
 from bot.settings import SRS
-from bot import bot
+from bot import bot, logger
 
 loc_counter = 0
 
