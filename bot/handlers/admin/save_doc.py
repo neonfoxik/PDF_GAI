@@ -12,6 +12,25 @@ from bot import bot, logger
 loc_counter = 0
 
 
+def parse_template_fields(fields_str: str) -> dict:
+    """Преобразует строку формата 'ключ : значение; ключ2 : значение2' в словарь"""
+    result = {}
+    if not fields_str.strip():
+        return result
+        
+    # Разбиваем строку по разделителю ';'
+    pairs = fields_str.split(';')
+    for pair in pairs:
+        if ':' in pair:
+            # Разбиваем пару по ':' и убираем лишние пробелы
+            key, value = pair.split(':', 1)
+            key = key.strip()
+            value = value.strip()
+            if key and value:  # Проверяем, что ключ и значение не пустые
+                result[key] = value
+    return result
+
+
 def change_documents(callback_query: CallbackQuery):
     user_id = callback_query.message.chat.id
     documents = Documents.objects.all()
@@ -67,12 +86,16 @@ def change_name(message: Message, num: int):
 
 
 def change_fields(message: Message, num: int):
-    fields = message.text
+    fields_str = message.text
 
-    doc = Documents.objects.get(address=num)
-    doc.fields = fields
-    doc.save()
-    bot.send_message(message.chat.id, "Поля обновлены обновлено.")
+    try:
+        fields_dict = parse_template_fields(fields_str)
+        doc = Documents.objects.get(address=num)
+        doc.template_fields = fields_dict
+        doc.save()
+        bot.send_message(message.chat.id, "Поля успешно обновлены.")
+    except Exception as e:
+        bot.send_message(message.chat.id, f"Ошибка при обновлении полей: {str(e)}\nУбедитесь, что формат соответствует 'ключ : значение; ключ2 : значение2'")
 
 
 def delete_document(num):
@@ -84,19 +107,19 @@ def delete_document(num):
 
 
 def redc_document(message: Message, num: int):
-    fields = message.text
+    try:
+        # Удаляем старый файл если он существует
+        try:
+            os.remove(f"{SRS}{num}.docx")
+        except:
+            pass
 
-    try:
-        os.remove(f"{SRS}{num}.docx")
-    except:
-        pass
-    try:
         chat_id = message.chat.id
-
         file_info = bot.get_file(message.document.file_id)
         downloaded_file = bot.download_file(file_info.file_path)
 
-        src = SRS + num
+        # Добавляем расширение .docx при сохранении
+        src = f"{SRS}{num}.docx"
         with open(src, 'wb') as new_file:
             new_file.write(downloaded_file)
 
@@ -111,11 +134,13 @@ def create_document(callback_query: CallbackQuery):
     global loc_counter
     loc_counter += 1
     doc = Document()
-    doc.save(SRS+str(loc_counter)+".docx")
+    # Добавляем расширение .docx при сохранении
+    doc_path = f"{SRS}{str(loc_counter)}.docx"
+    doc.save(doc_path)
     Documents.objects.create(
         address=str(loc_counter),
         name=str(loc_counter),
-        fields=''
+        template_fields={}
     )
     bot.send_message(callback_query.message.chat.id, "Новый документ создан")
 
@@ -135,14 +160,15 @@ def add_new_document_doc(message: Message):
     file_info = bot.get_file(message.document.file_id)
     downloaded_file = bot.download_file(file_info.file_path)
 
-    src = SRS + num
+    # Добавляем расширение .docx при сохранении
+    src = f"{SRS}{num}.docx"
     with open(src, 'wb') as new_file:
         new_file.write(downloaded_file)
 
     Documents.objects.create(
         address=str(num),
         name=str(num),
-        fields=''
+        template_fields={}
     )
 
     bot.reply_to(message, "Сохранено, отправьте название документа", reply_markup=CANCELBUTTON)
@@ -160,9 +186,13 @@ def add_new_document_name(message: Message, num: int):
 
 
 def add_new_document_fields(message: Message, num: int):
-    fields = message.text
+    fields_str = message.text
 
-    doc = Documents.objects.get(address=num)
-    doc.fields = fields
-    doc.save()
-    bot.send_message(message.chat.id, "Поля обновлены. Теперь можете пользоваться документом")
+    try:
+        fields_dict = parse_template_fields(fields_str)
+        doc = Documents.objects.get(address=num)
+        doc.template_fields = fields_dict
+        doc.save()
+        bot.send_message(message.chat.id, "Поля успешно добавлены. Теперь можете пользоваться документом")
+    except Exception as e:
+        bot.send_message(message.chat.id, f"Ошибка при добавлении полей: {str(e)}\nУбедитесь, что формат соответствует 'ключ : значение; ключ2 : значение2'")

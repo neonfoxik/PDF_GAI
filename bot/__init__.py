@@ -3,8 +3,6 @@ import telebot
 from django.conf import settings
 
 
-
-
 commands = settings.BOT_COMMANDS
 
 bot = telebot.TeleBot(
@@ -13,9 +11,12 @@ bot = telebot.TeleBot(
     skip_pending=True,
 )
 
-bot.set_my_commands(commands)
-
-logging.info(f'@{bot.get_me().username} started')
+def init_bot():
+    try:
+        bot.set_my_commands(commands)
+        logging.info(f'@{bot.get_me().username} started')
+    except Exception as e:
+        logging.error(f'Failed to initialize bot commands: {e}')
 
 logger = telebot.logger
 logger.setLevel(logging.INFO)

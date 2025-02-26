@@ -6,11 +6,14 @@ from telebot.types import (
     InlineKeyboardMarkup,
     CallbackQuery,
 )
+from bot.keyboards import MENU_BUTTON
 from bot.models import User, Button, ButtonGroup
-from bot.handlers.common_text import (
-    main_menu
-)
 from bot.texts import FAQ, LC_TEXT
+
+
+def main_menu(message: Message) -> None:
+    bot.send_message(message.chat.id, "Главное меню", reply_markup=MENU_BUTTON)
+
 
 
 def start(message: Message) -> None:

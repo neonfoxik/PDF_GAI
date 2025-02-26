@@ -6,7 +6,8 @@ from telebot.types import (
 """SystemInlineKeyboards"""
 MENU_BUTTON = InlineKeyboardMarkup()
 menu = InlineKeyboardButton(text="В меню", callback_data="menu")
-MENU_BUTTON.add(menu)
+document_menu = InlineKeyboardButton(text="Парсинг документов", callback_data="marckup_choose_document")
+MENU_BUTTON.add(menu).add(document_menu)
 
 UNIVERSAL_BUTTONS = InlineKeyboardMarkup()
 back = InlineKeyboardButton(text="Назад в меню 🔙", callback_data="back")

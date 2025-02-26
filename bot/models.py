@@ -51,10 +51,6 @@ class Documents(models.Model):
     name = models.CharField(
         max_length=40,
     )
-    parent_button = models.CharField(
-        max_length=20,
-        verbose_name='Имя родительской кнопки'
-    )
     template_fields = models.JSONField(null=True, blank=True)
     class Meta:
         verbose_name = 'Документы'
@@ -66,10 +62,10 @@ class Documents(models.Model):
 
 class UserTemplateVariable(models.Model):
     """Модель для хранения пользовательских переменных шаблона"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='template_variables')
     display_name = models.CharField(max_length=255, verbose_name="Отображаемое название")
     template_field = models.CharField(max_length=255, verbose_name="Поле в шаблоне")
     value = models.TextField(blank=True, null=True, verbose_name="Значение")
-    document = models.ForeignKey(Documents, on_delete=models.CASCADE, related_name='template_variables')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

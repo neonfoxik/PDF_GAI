@@ -51,5 +51,12 @@ from .admin.save_doc import (
     changing,
     create_document,
     add_new_document,
-
+    
 )
+
+from .user.pars_system import (
+    marckup_choose_document,
+    pars_document,
+)
+
+

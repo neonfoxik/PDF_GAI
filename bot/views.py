@@ -105,3 +105,6 @@ select_button_group = bot.callback_query_handler(lambda c: c.data.startswith('se
 texts_admin_menu = bot.callback_query_handler(lambda c: c.data == 'texts_actions')(texts_admin_menu)
 documents_admin_menu = bot.callback_query_handler(lambda c: c.data == 'documents_actions')(documents_admin_menu)
 button_admin_menu = bot.callback_query_handler(lambda c: c.data == 'buttons_actions')(button_admin_menu)
+
+pars_document = bot.callback_query_handler(lambda c: c.data.startswith('parsDocument_'))(pars_document)
+marckup_choose_document = bot.callback_query_handler(lambda c: c.data == 'marckup_choose_document')(marckup_choose_document)
