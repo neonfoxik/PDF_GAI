@@ -11,10 +11,10 @@ from datetime import datetime
 
 
 from django.conf import settings
-from bot import AI_ASSISTANT, CONVERTING_DOCUMENTS, bot, logger
+from bot import bot, logger
 from bot.core import check_registration
 from bot.apis.ai import generate_response
-from bot.models import User, Transaction, Mode, UserMode
+from bot.models import User
 from bot.texts import NOT_IN_DB_TEXT
 from bot.apis.long_messages import split_message
 from bot.keyboards import LONGMESSAGE_BUTTONS

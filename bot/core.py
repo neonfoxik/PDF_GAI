@@ -15,8 +15,6 @@ def check_registration(func):
     def wrapped(message: Message):
         user_id = message.from_user.id
         if User.objects.filter(telegram_id=user_id).exists():
-            user = User.objects.filter(telegram_id=user_id)
-            if user.has_plan:
-                return func(message)
+            return func(message)
         bot.send_message(user_id, NOT_IN_DB_TEXT)
     return wrapped

@@ -52,6 +52,8 @@ admin = bot.message_handler(commands=["admin"])(admin_menu)
 documents_main_menu = bot.message_handler(commands=["documents_menu"])(documents_main_menu)
 
 admin_menu_call = bot.callback_query_handler(lambda c: c.data == "admin_menu")(admin_menu_call)
+upload_admin_menu = bot.callback_query_handler(lambda c: c.data == "upload_main")(upload_admin_menu)
+users_action_main = bot.callback_query_handler(lambda c: c.data == "users_action")(users_action_main)
 create_button = bot.callback_query_handler(lambda c: c.data == 'create_button')(add_button)
 save_button = bot.callback_query_handler(lambda c: c.data == 'save_button')(save_button_to_file)
 cancellation_button = bot.callback_query_handler(lambda c: c.data == 'cancellation')(cancellation_button)
@@ -106,6 +108,9 @@ texts_admin_menu = bot.callback_query_handler(lambda c: c.data == 'texts_actions
 documents_admin_menu = bot.callback_query_handler(lambda c: c.data == 'documents_actions')(documents_admin_menu)
 button_admin_menu = bot.callback_query_handler(lambda c: c.data == 'buttons_actions')(button_admin_menu)
 chat_with_ai = bot.message_handler(func=lambda message: True)(chat_with_ai)
+
+add_text_to_file = bot.callback_query_handler(lambda c: c.data == 'create_new_text')(add_text_to_file)
+
 
 long_message_get_send_option = bot.callback_query_handler(lambda c: c.data.startswith("lngmsg_"))(long_message_get_send_option)
 long_message_get_send_option_docs = bot.callback_query_handler(lambda c: c.data.startswith("documents_"))(long_message_get_send_option_docs)

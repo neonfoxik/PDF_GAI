@@ -8,7 +8,7 @@ from django.conf import settings
 from bot import bot
 from bot.models import User
 from bot.apis.long_messages import split_message, save_message_to_file
-from bot.keyboards import DOCUMENT_BUTTONS, LONGMESSAGE_BUTTONS
+from bot.keyboards import LONGMESSAGE_BUTTONS
 
 def long_message_get_send_option(call: CallbackQuery):
     user_id = call.from_user.id

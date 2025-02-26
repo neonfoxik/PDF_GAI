@@ -2,7 +2,7 @@ from functools import wraps
 from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from bot import bot, logger
 from bot.models import User, Button, ButtonGroup, Texts, Documents
-from bot.keyboards import SAVE_BUTTONS, ADMIN_BUTTONS_MAIN, CANCELBUTTON, ADMIN_BUTTONS_DOC, ADMIN_BUTTONS_BUTTON
+from bot.keyboards import SAVE_BUTTONS, ADMIN_BUTTONS_MAIN, CANCELBUTTON, ADMIN_BUTTONS_DOC, ADMIN_BUTTONS_BUTTON, ADMIN_UPLOAD_BUTTONS, ADMIN_BUTTONS_TXT
 
 button_data = {}
 button_group_data = {}
@@ -91,9 +91,29 @@ def documents_admin_menu(callback_query: CallbackQuery) -> None:
 def texts_admin_menu(callback_query: CallbackQuery) -> None:
     bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
     try:
-        bot.send_message(callback_query.message.chat.id, 'Тексты', reply_markup=ADMIN_BUTTONS_DOC)
+        bot.send_message(callback_query.message.chat.id, 'Тексты', reply_markup=ADMIN_BUTTONS_TXT)
     except Exception as e:
         logger.error(f'Ошибка при отправке сообщения в texts_admin_menu: {e}')
+
+
+@admin_permission
+def upload_admin_menu(callback_query: CallbackQuery) -> None:
+    bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
+    try:
+        bot.send_message(callback_query.message.chat.id, 'Выберите действие', reply_markup=ADMIN_UPLOAD_BUTTONS)
+    except Exception as e:
+        logger.error(f'Ошибка при отправке сообщения в texts_admin_menu: {e}')
+
+#дописать функцию
+@admin_permission
+def users_action_main(callback_query: CallbackQuery) -> None:
+    bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
+    keyboards = InlineKeyboardMarkup()
+    try:
+        bot.send_message(callback_query.message.chat.id, 'Выберите действие', reply_markup=keyboards)
+    except Exception as e:
+        logger.error(f'Ошибка при отправке сообщения в texts_admin_menu: {e}')
+
 
 """создание групп кнопок"""
 
@@ -652,9 +672,9 @@ def choose_parent_button_for_text(message: Message) -> None:
                          reply_markup=ADMIN_BUTTONS_MAIN)
 
 @admin_permission
-def choose_and_view_parent_txt(callback: CallbackQuery) -> None:
-    bot.send_message(callback.message.chat.id, 'У вас нерт зарегестрированных кнопок создайте хотя бы одну',
-                     reply_markup=ADMIN_BUTTONS_MAIN)
+def view_all_buttons_for_text(callback: CallbackQuery) -> None:
+    bot.send_message(callback.message.chat.id, 'Выберите родительскую кнопку')
+
 
 @admin_permission
 def get_text_name(message: Message) -> None:
