@@ -753,6 +753,7 @@ from bot.keyboards import UNIVERSAL_BUTTONS
         common_admin_template += f"""
 def main_menu_call(call: CallbackQuery) -> None:
     try:
+        bot.delete_message(call.message.chat.id, call.message.message_id)
         {mainGroup.name} = InlineKeyboardMarkup()
 """
         main_buttons = Button.objects.filter(button_group=mainGroup.name)
@@ -924,11 +925,12 @@ def {group.name}_handler(call: CallbackQuery) -> None:
 def {document.name}_handler(call: CallbackQuery) -> None:
     try:
         bot.delete_message(call.message.chat.id, call.message.message_id)
-        bot.send_message(call.message.chat.id, 'главное меню', reply_markup={document.name})
-"""
-            common_admin_template += f"""
-        bot.send_document(message.chat.id, open(r'SRS/{document.name}.docx', 'rb'))
-"""
+        keyboard = InlineKeyboardMarkup()
+        document_menu = InlineKeyboardButton(text="Парсинг документов", callback_data="marckup_choose_document_{document.name}")
+        change_base_values  = InlineKeyboardButton(text="Изменить базовые значения", callback_data="ChangeDefaultUserValue111_{document.name}")
+        keyboard.add(document_menu).add(change_base_values)
+        bot.send_message(call.message.chat.id, 'Выберите действие для документа', reply_markup={document.name})
+""" #искак если не допилишь я тебе зубы допилю
             common_admin_template += """
     except Exception as e:
         logger.error(f'Ошибка в обработчике : {e}')

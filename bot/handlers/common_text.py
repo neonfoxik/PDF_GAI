@@ -6,38 +6,38 @@ from telebot.types import (
     InlineKeyboardMarkup,
     CallbackQuery,
 )
-from bot.keyboards import MENU_BUTTON
 from bot.models import User, Button, ButtonGroup, Texts
 from bot.keyboards import UNIVERSAL_BUTTONS
 
 
 def main_menu_call(call: CallbackQuery) -> None:
     try:
-        cjjdjdjdjdjxjdhhd = InlineKeyboardMarkup()
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        djsjhdhdh = InlineKeyboardMarkup()
 
-        cjjdjdjdjdjxjdhhd.add(InlineKeyboardButton(text='djjdjdjdjjdjdhd', callback_data='dhhdhdjdjdjsjjddkjd'))
+        djsjhdhdh.add(InlineKeyboardButton(text='привет', callback_data='jdjdjdjjd'))
         
-        bot.send_message(call.message.chat.id, 'Главное меню', reply_markup=cjjdjdjdjdjxjdhhd)
+        bot.send_message(call.message.chat.id, 'Главное меню', reply_markup=djsjhdhdh)
         
     except Exception as e:
         logger.error(f'Ошибка в main_menu: {e}')
 
 def main_menu_message(message: Message) -> None:
     try:
-        cjjdjdjdjdjxjdhhd = InlineKeyboardMarkup()
+        djsjhdhdh = InlineKeyboardMarkup()
 
-        cjjdjdjdjdjxjdhhd.add(InlineKeyboardButton(text='djjdjdjdjjdjdhd', callback_data='dhhdhdjdjdjsjjddkjd'))
+        djsjhdhdh.add(InlineKeyboardButton(text='привет', callback_data='jdjdjdjjd'))
         
-        bot.send_message(message.chat.id, 'Главное меню', reply_markup=cjjdjdjdjdjxjdhhd)
+        bot.send_message(message.chat.id, 'Главное меню', reply_markup=djsjhdhdh)
         
     except Exception as e:
         logger.error(f'Ошибка в main_menu: {e}')
 
-@bot.callback_query_handler(func=lambda call: call.data == "dhhdhdjdjdjsjjddkjd")
-def duhdhdhdjdjd_handler(call: CallbackQuery) -> None:
+@bot.callback_query_handler(func=lambda call: call.data == "jdjdjdjjd")
+def sggshshsh_handler(call: CallbackQuery) -> None:
     try:
         bot.delete_message(call.message.chat.id, call.message.message_id)
-        bot.send_message(call.message.chat.id, 'этого бота сделал я', reply_markup=UNIVERSAL_BUTTONS)
+        bot.send_message(call.message.chat.id, 'привет я крутой', reply_markup=UNIVERSAL_BUTTONS)
 
 
     except Exception as e:

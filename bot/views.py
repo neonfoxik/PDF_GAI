@@ -49,6 +49,7 @@ Common
 start = bot.message_handler(commands=["start"])(start)
 help_ = bot.message_handler(commands=["help"])(help_)
 admin = bot.message_handler(commands=["admin"])(admin_menu)
+user_interface = bot.message_handler(commands=["parsing"])(main_menu_right)
 documents_main_menu = bot.message_handler(commands=["documents_menu"])(documents_main_menu)
 
 

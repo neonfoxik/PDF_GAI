@@ -15,7 +15,7 @@ from bot.handlers.common_text import (
 from bot.texts import FAQ, LC_TEXT
 
 
-def main_menu(message: Message) -> None:
+def main_menu_right(message: Message) -> None:
     bot.send_message(message.chat.id, "Главное меню", reply_markup=MENU_BUTTON)
 
 
