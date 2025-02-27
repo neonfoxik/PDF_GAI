@@ -108,3 +108,7 @@ button_admin_menu = bot.callback_query_handler(lambda c: c.data == 'buttons_acti
 
 pars_document = bot.callback_query_handler(lambda c: c.data.startswith('parsDocument_'))(pars_document)
 marckup_choose_document = bot.callback_query_handler(lambda c: c.data == 'marckup_choose_document')(marckup_choose_document)
+
+
+choose_default_user_values = bot.callback_query_handler(lambda c: c.data == "ChangeDefaultUserValue111")(choose_default_user_values)
+change_default_user_values = bot.callback_query_handler(lambda c: c.data.startswith("ChangeDefaultUserValue_"))(change_default_user_value)

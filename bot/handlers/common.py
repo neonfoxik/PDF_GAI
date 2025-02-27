@@ -7,13 +7,40 @@ from telebot.types import (
     CallbackQuery,
 )
 from bot.keyboards import MENU_BUTTON
-from bot.models import User, Button, ButtonGroup
+from bot.models import User, Button, ButtonGroup, UserTemplateVariable
 from bot.texts import FAQ, LC_TEXT
 
 
 def main_menu(message: Message) -> None:
     bot.send_message(message.chat.id, "Главное меню", reply_markup=MENU_BUTTON)
 
+
+def choose_default_user_values(callback_query: CallbackQuery) -> None:
+    user_id = callback_query.from_user.id
+    user = User.objects.get(telegram_id=user_id)
+    user_variables = UserTemplateVariable.objects.filter(user=user)
+    markup = InlineKeyboardMarkup(row_width=2)
+
+    for variable in user_variables:
+        button = InlineKeyboardButton(variable.display_name, callback_data=f"ChangeDefaultUserValue_{variable.template_field}")
+        markup.add(button)
+    bot.send_message(user_id, "Выберете переменную которую хотите изменить", reply_markup=markup)
+
+
+def change_default_user_value(callback_query: CallbackQuery) -> None:
+    _, template_field = callback_query.data.split("_")
+    user = User.objects.get(telegram_id=callback_query.from_user.id)
+    user_variables = UserTemplateVariable.objects.filter(user=user).filter(template_field=template_field).first()
+    bot.send_message(user.telegram_id, f"Выберете значение для {user_variables.display_name}")
+    bot.register_next_step_handler(callback_query.message, change_default_user_value_step, template_field)
+
+
+def change_default_user_value_step(message: Message, template_field) -> None:
+    user = User.objects.get(telegram_id=message.from_user.id)
+    user_variables = UserTemplateVariable.objects.filter(user=user).filter(template_field=template_field).first()
+    user_variables.value = message.text
+    user_variables.save()
+    bot.send_message(user.telegram_id, "Значение изменено")
 
 
 def start(message: Message) -> None:
