@@ -6,6 +6,7 @@ from telebot.types import (
     InlineKeyboardMarkup,
     CallbackQuery,
 )
+from bot.keyboards import MENU_BUTTON
 from bot.models import User, Button, ButtonGroup, Texts
 from bot.keyboards import UNIVERSAL_BUTTONS
 

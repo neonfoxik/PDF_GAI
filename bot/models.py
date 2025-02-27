@@ -56,11 +56,7 @@ class Documents(models.Model):
     name = models.CharField(
         max_length=40,
     )
-    parent_button = models.CharField(
-        max_length=20,
-        verbose_name='Имя родительской кнопки'
-    )
-
+    template_fields = models.JSONField(null=True, blank=True)
     class Meta:
         verbose_name = 'Документы'
         verbose_name_plural = 'Документы'
@@ -69,23 +65,24 @@ class Documents(models.Model):
         return self.address
 
 
-class ParsValues(models.Model):
-    world_value = models.CharField(
-        primary_key=True,
-        max_length=60,
-        verbose_name='Переменная в ворлде'
-    )
-    user_text = models.CharField(
-        max_length=20,
-        verbose_name='текст который видит пользователь'
-    )
+class UserTemplateVariable(models.Model):
+    """Модель для хранения пользовательских переменных шаблона"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='template_variables')
+    display_name = models.CharField(max_length=255, verbose_name="Отображаемое название")
+    template_field = models.CharField(max_length=255, verbose_name="Поле в шаблоне")
+    value = models.TextField(blank=True, null=True, verbose_name="Значение")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = 'Переменная'
-        verbose_name_plural = 'Переменные'
+        verbose_name = "Переменная шаблона"
+        verbose_name_plural = "Переменные шаблона"
+        ordering = ['display_name']
 
     def __str__(self):
-        return self.world_value
+        return f"{self.display_name} ({self.template_field})"
+
+
 
 
 

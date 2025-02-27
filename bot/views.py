@@ -115,6 +115,14 @@ view_all_buttons_for_text = bot.callback_query_handler(lambda c: c.data == 'view
 texts_admin_menu = bot.callback_query_handler(lambda c: c.data == 'texts_actions')(texts_admin_menu)
 documents_admin_menu = bot.callback_query_handler(lambda c: c.data == 'documents_actions')(documents_admin_menu)
 button_admin_menu = bot.callback_query_handler(lambda c: c.data == 'buttons_actions')(button_admin_menu)
+
+pars_document = bot.callback_query_handler(lambda c: c.data.startswith('parsDocument_'))(pars_document)
+marckup_choose_document = bot.callback_query_handler(lambda c: c.data == 'marckup_choose_document')(marckup_choose_document)
+
+
+choose_default_user_values = bot.callback_query_handler(lambda c: c.data == "ChangeDefaultUserValue111")(choose_default_user_values)
+change_default_user_values = bot.callback_query_handler(lambda c: c.data.startswith("ChangeDefaultUserValue_"))(change_default_user_value)
+
 chat_with_ai = bot.message_handler(func=lambda message: True)(chat_with_ai)
 
 add_text_to_file = bot.callback_query_handler(lambda c: c.data == 'create_new_text')(add_text_to_file)
@@ -124,3 +132,4 @@ long_message_get_send_option = bot.callback_query_handler(lambda c: c.data.start
     (long_message_get_send_option)
 long_message_get_send_option_docs = bot.callback_query_handler(lambda c: c.data.startswith("documents_"))\
     (long_message_get_send_option_docs)
+
