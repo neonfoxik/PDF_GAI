@@ -4,12 +4,9 @@ from telebot.types import (
 )
 
 """SystemInlineKeyboards"""
-MENU_BUTTON = InlineKeyboardMarkup()
-menu = InlineKeyboardButton(text="В меню", callback_data="menu")
-MENU_BUTTON.add(menu)
 
 UNIVERSAL_BUTTONS = InlineKeyboardMarkup()
-back = InlineKeyboardButton(text="Назад в меню 🔙", callback_data="back")
+back = InlineKeyboardButton(text="Назад в меню 🔙", callback_data="main_menu")
 UNIVERSAL_BUTTONS.add(back)
 
 SAVE_BUTTONS = InlineKeyboardMarkup()

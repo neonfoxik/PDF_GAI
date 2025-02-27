@@ -51,6 +51,7 @@ help_ = bot.message_handler(commands=["help"])(help_)
 admin = bot.message_handler(commands=["admin"])(admin_menu)
 documents_main_menu = bot.message_handler(commands=["documents_menu"])(documents_main_menu)
 
+
 admin_menu_call = bot.callback_query_handler(lambda c: c.data == "admin_menu")(admin_menu_call)
 upload_admin_menu = bot.callback_query_handler(lambda c: c.data == "upload_main")(upload_admin_menu)
 users_action_main = bot.callback_query_handler(lambda c: c.data == "users_action")(users_action_main)
@@ -90,7 +91,7 @@ analyze_and_fill_common_admin = bot.callback_query_handler(lambda c: c.data == '
     (analyze_and_fill_common_admin)
 analyze_and_fill_common_admin_docx = bot.callback_query_handler(lambda c: c.data == 'upload_buttons_docx') \
     (analyze_and_fill_common_admin_docx)
-main_menu = bot.callback_query_handler(lambda c: c.data == 'main_menu')(main_menu)
+main_menu = bot.callback_query_handler(lambda c: c.data == 'main_menu')(main_menu_call)
 
 view_all_buttons_in_button_group = bot.callback_query_handler(lambda c: c.data == 'view_all_buttons') \
     (view_all_buttons_in_button_group)
@@ -101,8 +102,15 @@ select_buttongroup_in_create_group = bot.callback_query_handler(
     lambda c: c.data.startswith('select_parent_in_create_group_'))(select_buttongroup_in_create_group)
 select_buttongroup_in_create_button = bot.callback_query_handler(lambda c: c.data.startswith('select_parent_in_button_'))\
     (select_buttongroup_in_create_button)
+select_parent_in_create_text = bot.callback_query_handler(lambda c: c.data.startswith('select_parent_in_text_'))\
+    (select_parent_in_create_text)
+
+
 get_is_document_group = bot.callback_query_handler(lambda c: c.data.startswith('is_document_'))(get_is_document_group)
 select_button_group = bot.callback_query_handler(lambda c: c.data.startswith('select_group_'))(select_button_group)
+
+view_all_buttons_for_text = bot.callback_query_handler(lambda c: c.data == 'view_all_buttons_for_text')\
+    (view_all_buttons_for_text)
 
 texts_admin_menu = bot.callback_query_handler(lambda c: c.data == 'texts_actions')(texts_admin_menu)
 documents_admin_menu = bot.callback_query_handler(lambda c: c.data == 'documents_actions')(documents_admin_menu)
@@ -112,5 +120,7 @@ chat_with_ai = bot.message_handler(func=lambda message: True)(chat_with_ai)
 add_text_to_file = bot.callback_query_handler(lambda c: c.data == 'create_new_text')(add_text_to_file)
 
 
-long_message_get_send_option = bot.callback_query_handler(lambda c: c.data.startswith("lngmsg_"))(long_message_get_send_option)
-long_message_get_send_option_docs = bot.callback_query_handler(lambda c: c.data.startswith("documents_"))(long_message_get_send_option_docs)
+long_message_get_send_option = bot.callback_query_handler(lambda c: c.data.startswith("lngmsg_"))\
+    (long_message_get_send_option)
+long_message_get_send_option_docs = bot.callback_query_handler(lambda c: c.data.startswith("documents_"))\
+    (long_message_get_send_option_docs)

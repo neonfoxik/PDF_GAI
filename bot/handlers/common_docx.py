@@ -11,11 +11,11 @@ from bot.settings import SRS
 
 def documents_main_menu(message) -> None:
     try:
-        dfgsgdfsgsdf = InlineKeyboardMarkup()
+        djjdjdjdjdjsj = InlineKeyboardMarkup()
 
-        dfgsgdfsgsdf.add(InlineKeyboardButton(text='sgdffgdsdfsggdfs', callback_data='dfgsfgdssdfgdfsgsdfg'))
+        djjdjdjdjdjsj.add(InlineKeyboardButton(text='dndnndndj', callback_data='idjdkdjkd'))
         
-        bot.send_message(message.chat.id, f'главное меню', reply_markup=dfgsgdfsgsdf)
+        bot.send_message(message.chat.id, f'главное меню', reply_markup=djjdjdjdjdjsj)
         
     except Exception as e:
         logger.error(f'Ошибка в main_menu: {e}')

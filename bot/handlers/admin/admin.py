@@ -673,22 +673,52 @@ def choose_parent_button_for_text(message: Message) -> None:
 
 @admin_permission
 def view_all_buttons_for_text(callback: CallbackQuery) -> None:
-    bot.send_message(callback.message.chat.id, 'Выберите родительскую кнопку')
+    try:
+        bot.delete_message(callback.message.chat.id, callback.message.message_id)
+        non_doc_groups = ButtonGroup.objects.filter(is_document=False)
+        parent_buttons = ButtonGroup.objects.values_list('parent_button', flat=True)
+        buttons = Button.objects.filter(
+            button_group__in=non_doc_groups.values_list('name', flat=True)
+        ).exclude(button_name__in=parent_buttons)
+        
+        keyboard = InlineKeyboardMarkup()
+        keyboard.add(InlineKeyboardButton(text="Отмена", callback_data="cancellation"))
+        if buttons.exists():
+            for button in buttons:
+                keyboard.add(InlineKeyboardButton(
+                    text=f"{button.button_name} ({button.button_text})",
+                    callback_data=f"select_parent_in_text_{button.button_name}"
+                ))
+        else:
+            keyboard.add(InlineKeyboardButton(text="Создать новую кнопку", callback_data="create_button"))
+            
+        try:
+            bot.send_message(callback.message.chat.id,
+                           'Выберите кнопку которая будет родительской:',
+                           reply_markup=keyboard)
+        except Exception as e:
+            logger.error(f'Ошибка при отправке сообщения в view_all_buttons_in_button_group: {e}')
+    except Exception as e:
+        logger.error(f'Ошибка при получении списка кнопок: {e}')
+        bot.send_message(callback.message.chat.id, 'Произошла ошибка при получении списка кнопок')
 
 
 @admin_permission
-def get_text_name(message: Message) -> None:
-    msg = bot.send_message(message.chat.id, 'Введите текст который будет высвечиваться пользователю')
+def select_parent_in_create_text(callback_query: CallbackQuery) -> None:
+    parent_name = callback_query.data.split('_')[4]
+    texts_data['text_parent_name'] = parent_name
+    msg = bot.send_message(callback_query.message.chat.id, 'Введите текст который будет высвечиваться пользователю')
     bot.register_next_step_handler(msg, get_text_content)
 
 @admin_permission
 def get_text_content(message: Message) -> None:
     text_content = message.text
     text_name = texts_data.get('text_name')
+    parent = texts_data.get("text_parent_name")
     try:
-        new_text = Texts(name_txt=text_name, txt_text=text_content, parent_button="")
+        new_text = Texts(name_txt=text_name, txt_text=text_content, parent_button=parent)
         new_text.save()
-        bot.send_message(message.chat.id, f'Текст "{text_name}" успешно добавлен!')
+        bot.send_message(message.chat.id, f'Текст "{text_name}" успешно добавлен!', reply_markup=ADMIN_BUTTONS_MAIN)
     except Exception as e:
         bot.send_message(message.chat.id, 'Произошла ошибка при добавлении текста')
         logger.error(f'Ошибка при добавлении текста: {e}')
@@ -710,6 +740,7 @@ from telebot.types import (
     CallbackQuery,
 )
 from bot.models import User, Button, ButtonGroup, Texts
+from bot.keyboards import UNIVERSAL_BUTTONS
 
 """
     try:
@@ -720,7 +751,7 @@ from bot.models import User, Button, ButtonGroup, Texts
 
         # Добавляем функцию main_menu
         common_admin_template += f"""
-def main_menu(message) -> None:
+def main_menu_call(call: CallbackQuery) -> None:
     try:
         {mainGroup.name} = InlineKeyboardMarkup()
 """
@@ -730,7 +761,25 @@ def main_menu(message) -> None:
         {mainGroup.name}.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))
         """
         common_admin_template += f"""
-        bot.send_message(message.chat.id, f'главное меню', reply_markup={mainGroup.name})
+        bot.send_message(call.message.chat.id, 'Главное меню', reply_markup={mainGroup.name})
+        """
+        common_admin_template += """
+    except Exception as e:
+        logger.error(f'Ошибка в main_menu: {e}')
+"""
+
+        common_admin_template += f"""
+def main_menu_message(message: Message) -> None:
+    try:
+        {mainGroup.name} = InlineKeyboardMarkup()
+"""
+        main_buttons = Button.objects.filter(button_group=mainGroup.name)
+        for button in main_buttons:
+            common_admin_template += f"""
+        {mainGroup.name}.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))
+        """
+        common_admin_template += f"""
+        bot.send_message(message.chat.id, 'Главное меню', reply_markup={mainGroup.name})
         """
         common_admin_template += """
     except Exception as e:
@@ -765,10 +814,10 @@ def {group.name}_handler(call: CallbackQuery) -> None:
         for text in all_texts:
             common_admin_template += f"""
 @bot.callback_query_handler(func=lambda call: call.data == "{text.parent_button}")
-def {text.name}_handler(call: CallbackQuery) -> None:
+def {text.name_txt}_handler(call: CallbackQuery) -> None:
     try:
         bot.delete_message(call.message.chat.id, call.message.message_id)
-        bot.send_message(call.message.chat.id, f'главное меню', reply_markup={text.name})
+        bot.send_message(call.message.chat.id, '{text.txt_text}', reply_markup=UNIVERSAL_BUTTONS)
 
 """
             common_admin_template += """

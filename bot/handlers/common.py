@@ -8,7 +8,7 @@ from telebot.types import (
 )
 from bot.models import User, Button, ButtonGroup
 from bot.handlers.common_text import (
-    main_menu
+    main_menu_message
 )
 from bot.texts import FAQ, LC_TEXT
 
@@ -23,7 +23,7 @@ def start(message: Message) -> None:
     )
 
     if user.has_plan:
-        main_menu(message)
+        main_menu_message(message)
     else:
         buy_plan(message)
 
