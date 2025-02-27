@@ -4,15 +4,15 @@ from telebot.types import (
 )
 
 """SystemInlineKeyboards"""
+
 MENU_BUTTON = InlineKeyboardMarkup()
 menu = InlineKeyboardButton(text="В меню", callback_data="menu")
 document_menu = InlineKeyboardButton(text="Парсинг документов", callback_data="marckup_choose_document")
 change_base_values  = InlineKeyboardButton(text="Изменить базовые значения", callback_data="ChangeDefaultUserValue111")
-
 MENU_BUTTON.add(menu).add(document_menu).add(change_base_values)
 
 UNIVERSAL_BUTTONS = InlineKeyboardMarkup()
-back = InlineKeyboardButton(text="Назад в меню 🔙", callback_data="back")
+back = InlineKeyboardButton(text="Назад в меню 🔙", callback_data="main_menu")
 UNIVERSAL_BUTTONS.add(back)
 
 SAVE_BUTTONS = InlineKeyboardMarkup()
@@ -24,9 +24,18 @@ ADMIN_BUTTONS_MAIN = InlineKeyboardMarkup()
 buttons_act = InlineKeyboardButton(text="Действия с кнопками", callback_data="buttons_actions")
 documents_act = InlineKeyboardButton(text="Документы", callback_data="documents_actions")
 texts_act = InlineKeyboardButton(text="Тексты", callback_data="texts_actions")
+upload = InlineKeyboardButton(text="Обновить кнопки", callback_data="upload_main")
+add_user = InlineKeyboardButton(text="Действия с пользователями", callback_data="users_action")
+ADMIN_BUTTONS_MAIN.add(buttons_act).add(documents_act).add(texts_act).add(upload).add(add_user)
+
+
+
+ADMIN_UPLOAD_BUTTONS = InlineKeyboardMarkup()
 upload_txt = InlineKeyboardButton(text="Обновить главное меню методички у пользователя", callback_data="upload_buttons_txt")
 upload_docx = InlineKeyboardButton(text="Обновить главное меню документов у пользователя", callback_data="upload_buttons_docx")
-ADMIN_BUTTONS_MAIN.add(buttons_act).add(documents_act).add(texts_act).add(upload_txt).add(upload_docx)
+admin_main_menu = InlineKeyboardButton(text="Вернуться в главное меню администратора", callback_data="admin_menu")
+ADMIN_UPLOAD_BUTTONS.add(upload_txt).add(upload_docx).add(admin_main_menu)
+
 
 ADMIN_BUTTONS_BUTTON = InlineKeyboardMarkup()
 create_button = InlineKeyboardButton(text="Создать кнопку", callback_data="create_button")
@@ -48,9 +57,14 @@ ADMIN_BUTTONS_TXT = InlineKeyboardMarkup()
 new_text = InlineKeyboardButton(text="Новый текст", callback_data="create_new_text")
 edit_text = InlineKeyboardButton(text="Редактировать тексты", callback_data="edit_text")
 admin_main_menu = InlineKeyboardButton(text="Вернуться в главное меню администратора", callback_data="admin_menu")
-ADMIN_BUTTONS_TXT.add(new_text).add(load_file).add(admin_main_menu)
+ADMIN_BUTTONS_TXT.add(new_text).add(edit_text).add(admin_main_menu)
 
 
 CANCELBUTTON = InlineKeyboardMarkup()
 cancellation = InlineKeyboardButton(text="Отмена", callback_data="cancellation")
 CANCELBUTTON.add(cancellation)
+
+LONGMESSAGE_BUTTONS = InlineKeyboardMarkup()
+message = InlineKeyboardButton(text="Сообщениями", callback_data="lngmsg_msg")
+documents = InlineKeyboardButton(text="Файлом", callback_data="lngmsg_docs")
+LONGMESSAGE_BUTTONS.add(message, documents)

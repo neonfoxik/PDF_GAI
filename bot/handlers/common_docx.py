@@ -11,24 +11,11 @@ from bot.settings import SRS
 
 def documents_main_menu(message) -> None:
     try:
-        gfdgdfsgfds = InlineKeyboardMarkup()
+        djjdjdjdjdjsj = InlineKeyboardMarkup()
 
-        gfdgdfsgfds.add(InlineKeyboardButton(text='sdfgdfsgdfsgsdfgdfsg', callback_data='sdfgfdgsdfsgfgsd'))
+        djjdjdjdjdjsj.add(InlineKeyboardButton(text='dndnndndj', callback_data='idjdkdjkd'))
         
-        bot.send_message(message.chat.id, f'главное меню', reply_markup=gfdgdfsgfds)
+        bot.send_message(message.chat.id, f'главное меню', reply_markup=djjdjdjdjdjsj)
         
     except Exception as e:
         logger.error(f'Ошибка в main_menu: {e}')
-
-@bot.callback_query_handler(func=lambda call: call.data == "sdfgfdgsdfsgfgsd")
-def efdsadafdgfasfgds_handler(call: CallbackQuery) -> None:
-    try:
-        bot.delete_message(call.message.chat.id, call.message.message_id)
-        efdsadafdgfasfgds = InlineKeyboardMarkup()
-
-        efdsadafdgfasfgds.add(InlineKeyboardButton(text='dfsadfsafasd', callback_data='gsdfgfsddfgs'))
-                
-        bot.send_message(call.message.chat.id, f'главное меню', reply_markup=efdsadafdgfasfgds)
-
-    except Exception as e:
-        logger.error(f'Ошибка в обработчике : {e}')
