@@ -10,13 +10,28 @@ from bot.models import User, Button, ButtonGroup, Texts
 from bot.keyboards import UNIVERSAL_BUTTONS
 
 
+class IsEdit:
+    def __init__(self):
+        self.IsEdit = False
+        
+    @property
+    def is_edit(self):
+        return self.IsEdit
+        
+    @is_edit.setter 
+    def is_create_button(self, value):
+        self.IsEdit = value
+
+
 def main_menu_call(call: CallbackQuery) -> None:
     try:
         bot.delete_message(call.message.chat.id, call.message.message_id)
         djsjhdhdh = InlineKeyboardMarkup()
+        if is_edit == True:
+            djsjhdhdh.add(InlineKeyboardButton(text='привет', callback_data='edit_jdjdjdjjd'))
+        else:
+            djsjhdhdh.add(InlineKeyboardButton(text='привет', callback_data='jdjdjdjjd'))
 
-        djsjhdhdh.add(InlineKeyboardButton(text='привет', callback_data='jdjdjdjjd'))
-        
         bot.send_message(call.message.chat.id, 'Главное меню', reply_markup=djsjhdhdh)
         
     except Exception as e:
