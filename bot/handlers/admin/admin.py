@@ -516,6 +516,24 @@ def get_text_content(message: Message) -> None:
         logger.error(f'Ошибка при добавлении текста: {e}')
 
 
+
+
+@admin_permission
+def edit_text_main(callback_query: CallbackQuery) -> None:
+    text_name = callback_query.data.split('_')[2]
+    keyboard = InlineKeyboardMarkup()
+    keyboard.add(InlineKeyboardButton(text="удалить текст", callback_data=f"delete_button_{text_name}"))
+    keyboard.add(InlineKeyboardButton(text="редактировать имя текста", callback_data=f"edit_button_name_{text_name}"))
+    keyboard.add(InlineKeyboardButton(text="редактировать текст текста", callback_data=f"edit_button_text_{text_name}"))
+    keyboard.add(InlineKeyboardButton(text="Отмена", callback_data="cancellation"))
+@admin_permission
+def edit_button_main(callback_query: CallbackQuery) -> None:
+    button_name = callback_query.data.split('_')[2]
+    keyboard = InlineKeyboardMarkup()
+    keyboard.add(InlineKeyboardButton(text="удалить кнопку", callback_data=f"delete_button_{button_name}"))
+    keyboard.add(InlineKeyboardButton(text="редактировать имя кнопки", callback_data=f"edit_button_name_{button_name}"))
+    keyboard.add(InlineKeyboardButton(text="редактировать текст кнопки", callback_data=f"edit_button_text_{button_name}"))
+    keyboard.add(InlineKeyboardButton(text="Отмена", callback_data="cancellation"))
 #Обновление скриптов
 @admin_permission
 def analyze_and_fill_common_admin(callback_query: CallbackQuery) -> None:
@@ -565,7 +583,7 @@ def main_menu_call(call: CallbackQuery) -> None:
             common_admin_template += f"""
 
         if is_edit == True:
-            {mainGroup.name}.add(InlineKeyboardButton(text='Редакт {button.button_text}', callback_data='edit_{button.button_name}'))
+            {mainGroup.name}.add(InlineKeyboardButton(text='Редакт {button.button_text}', callback_data='edit_button_main_{button.button_name}'))
         {mainGroup.name}.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))
             
         
@@ -587,7 +605,7 @@ def main_menu_message(message: Message) -> None:
         for button in main_buttons:
             common_admin_template += f"""
         if is_edit == True:
-            {mainGroup.name}.add(InlineKeyboardButton(text='Редакт {button.button_text}', callback_data='edit_{button.button_name}'))
+            {mainGroup.name}.add(InlineKeyboardButton(text='Редакт {button.button_text}', callback_data='edit_button_main_{button.button_name}'))
         {mainGroup.name}.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))
             
         """
@@ -613,7 +631,7 @@ def {group.name}_handler(call: CallbackQuery) -> None:
             for button in all_group_buttons:
                 common_admin_template += f"""
         if is_edit == True:
-            {group.name}.add(InlineKeyboardButton(text='Редакт {button.button_text}', callback_data='edit_{button.button_name}'))
+            {group.name}.add(InlineKeyboardButton(text='Редакт {button.button_text}', callback_data='edit_button_main_{button.button_name}'))
         {group.name}.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))
             """
             common_admin_template += f"""
@@ -634,7 +652,7 @@ def {text.name_txt}_handler(call: CallbackQuery) -> None:
         bot.delete_message(call.message.chat.id, call.message.message_id)
         if is_edit == True:
             edit = InlineKeyboardMarkup()
-            edit.add(InlineKeyboardButton(text='{text.name_txt}', callback_data='edit_{text.name_txt}'))
+            edit.add(InlineKeyboardButton(text='{text.name_txt}', callback_data='edit_text_main_{text.name_txt}'))
         bot.send_message(call.message.chat.id, '{text.txt_text}', reply_markup=UNIVERSAL_BUTTONS)
 
 """

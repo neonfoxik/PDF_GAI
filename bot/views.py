@@ -73,21 +73,9 @@ is_sending_to_admin = bot.callback_query_handler(lambda c: c.data.startswith('co
 accept = bot.callback_query_handler(lambda c: c.data.startswith("accept"))(accept)
 add_new_document = bot.callback_query_handler(lambda c: c.data == "add_new_doc")(add_new_document)
 
-button_actions = bot.callback_query_handler(lambda c: c.data.startswith('list_button_'))(button_actions)
-edit_button_callback_name = bot.callback_query_handler(lambda c: c.data.startswith('edit_name_')) \
-    (edit_button_callback_name)
+edit_text_main = bot.callback_query_handler(lambda c: c.data.startswith('edit_text_main_'))(edit_text_main)
 
-delete_button_from_file = bot.callback_query_handler(lambda c: c.data.startswith('delete_button_')) \
-    (delete_button_from_file)
-list_buttons = bot.callback_query_handler(lambda c: c.data == 'edit_buttons')(list_buttons)
-edit_button_menu = bot.callback_query_handler(lambda c: c.data.startswith('edit_button_'))(edit_button_menu)
 
-button_group_actions = bot.callback_query_handler(lambda c: c.data.startswith('list_group_'))(button_group_actions)
-delete_group_from_file = bot.callback_query_handler(lambda c: c.data.startswith('delete_group_'))\
-    (delete_group_from_file)
-edit_group = bot.callback_query_handler(lambda c: c.data.startswith('edit_group_all_'))(edit_group)
-edit_group_name = bot.callback_query_handler(lambda c: c.data.startswith('edit_group_name_'))(edit_group_name)
-list_button_group = bot.callback_query_handler(lambda c: c.data == 'edit_group_button')(list_button_group)
 analyze_and_fill_common_admin = bot.callback_query_handler(lambda c: c.data == 'upload_buttons_txt') \
     (analyze_and_fill_common_admin)
 analyze_and_fill_common_admin_docx = bot.callback_query_handler(lambda c: c.data == 'upload_buttons_docx') \
