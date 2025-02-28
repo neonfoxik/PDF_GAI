@@ -20,6 +20,7 @@ from .common_docx import (
 from .admin.admin import (
     add_button,
     admin_menu,
+    delete_text,
     edit_button_main,
     edit_text_main,
     select_buttongroup_in_create_group,
@@ -43,7 +44,10 @@ from .admin.admin import (
     users_action_main,
     add_text_to_file,
     select_parent_in_create_text,
-    view_all_buttons_for_text
+    view_all_buttons_for_text,
+    confirm_delete_text,
+    edit_text_name,
+    edit_text_text
 )
 
 

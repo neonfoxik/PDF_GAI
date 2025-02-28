@@ -75,6 +75,14 @@ add_new_document = bot.callback_query_handler(lambda c: c.data == "add_new_doc")
 
 edit_text_main = bot.callback_query_handler(lambda c: c.data.startswith('edit_text_main_'))(edit_text_main)
 
+delete_text = bot.callback_query_handler(lambda c: c.data.startswith('delete_text_'))(delete_text)
+confirm_delete_text = bot.callback_query_handler(lambda c: c.data.startswith('confirm_delete_text_'))\
+    (confirm_delete_text)
+edit_text_name = bot.callback_query_handler(lambda c: c.data.startswith('edit_text_name_'))(edit_text_name)
+edit_text_text = bot.callback_query_handler(lambda c: c.data.startswith('edit_text_text_'))(edit_text_text)
+
+
+
 
 analyze_and_fill_common_admin = bot.callback_query_handler(lambda c: c.data == 'upload_buttons_txt') \
     (analyze_and_fill_common_admin)
