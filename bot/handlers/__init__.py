@@ -12,7 +12,8 @@ from .user.ai import (
     )
 from .common_text import (
     main_menu_message,
-    main_menu_call
+    main_menu_call,
+    main_menu_edit
 )
 from .common_docx import (
     documents_main_menu
@@ -47,7 +48,11 @@ from .admin.admin import (
     view_all_buttons_for_text,
     confirm_delete_text,
     edit_text_name,
-    edit_text_text
+    edit_text_text,
+    delete_button,
+    confirm_delete_button,
+    edit_button_name,
+    edit_button_text
 )
 
 

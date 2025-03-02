@@ -46,20 +46,23 @@ def change_default_user_value_step(message: Message, template_field) -> None:
     user_variables.save()
     bot.send_message(user.telegram_id, "Значение изменено")
 
-
 def start(message: Message) -> None:
     """Обработчик команды /start."""
-    user_id = message.from_user.id
+    try:
+        user_id = message.from_user.id
 
-    user, created = User.objects.get_or_create(
-        telegram_id=user_id,
-        defaults={'name': message.from_user.first_name}
-    )
+        user, created = User.objects.get_or_create(
+            telegram_id=user_id,
+            defaults={'name': message.from_user.first_name}
+        )
 
-    if user.has_plan:
-        main_menu_message(message)
-    else:
-        buy_plan(message)
+        if user.has_plan:
+            main_menu_message(message)
+        else:
+            buy_plan(message)
+    except Exception as e:
+        logger.error(f"Ошибка в обработчике start: {e}")
+        bot.send_message(message.chat.id, "Произошла ошибка при обработке команды")
 
 
 def help_(message: Message) -> None:

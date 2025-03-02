@@ -73,6 +73,7 @@ is_sending_to_admin = bot.callback_query_handler(lambda c: c.data.startswith('co
 accept = bot.callback_query_handler(lambda c: c.data.startswith("accept"))(accept)
 add_new_document = bot.callback_query_handler(lambda c: c.data == "add_new_doc")(add_new_document)
 
+
 edit_text_main = bot.callback_query_handler(lambda c: c.data.startswith('edit_text_main_'))(edit_text_main)
 
 delete_text = bot.callback_query_handler(lambda c: c.data.startswith('delete_text_'))(delete_text)
@@ -82,6 +83,14 @@ edit_text_name = bot.callback_query_handler(lambda c: c.data.startswith('edit_te
 edit_text_text = bot.callback_query_handler(lambda c: c.data.startswith('edit_text_text_'))(edit_text_text)
 
 
+edit_button_main = bot.callback_query_handler(lambda c: c.data.startswith('edit_button_main_'))(edit_button_main)
+
+delete_button = bot.callback_query_handler(lambda c: c.data.startswith('delete_button_'))(delete_button)
+confirm_delete_button = bot.callback_query_handler(lambda c: c.data.startswith('confirm_delete_button_'))\
+    (confirm_delete_button)
+edit_button_name = bot.callback_query_handler(lambda c: c.data.startswith('edit_button_name_'))(edit_button_name)
+edit_button_text = bot.callback_query_handler(lambda c: c.data.startswith('edit_button_text_'))(edit_button_text)
+
 
 
 analyze_and_fill_common_admin = bot.callback_query_handler(lambda c: c.data == 'upload_buttons_txt') \
@@ -89,7 +98,7 @@ analyze_and_fill_common_admin = bot.callback_query_handler(lambda c: c.data == '
 analyze_and_fill_common_admin_docx = bot.callback_query_handler(lambda c: c.data == 'upload_buttons_docx') \
     (analyze_and_fill_common_admin_docx)
 main_menu = bot.callback_query_handler(lambda c: c.data == 'main_menu')(main_menu_call)
-
+main_menu_edit = bot.callback_query_handler(lambda c: c.data == 'edit_main_menu')(main_menu_edit)
 view_all_buttons_in_button_group = bot.callback_query_handler(lambda c: c.data == 'view_all_buttons') \
     (view_all_buttons_in_button_group)
 create_button_group = bot.callback_query_handler(lambda c: c.data == 'create_new_group')(create_button_group)

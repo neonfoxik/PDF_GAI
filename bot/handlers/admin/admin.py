@@ -22,6 +22,7 @@ class ButtonState:
 
 button_state = ButtonState()
 
+
 def admin_permission(func):
     """
     Проверка прав администратора для доступа к функции.
@@ -44,6 +45,7 @@ def admin_permission(func):
         return func(message)
 
     return wrapped
+
 
 def validate_user_message(message: Message) -> None:
     if message.text and len(message.text) > 0 and message.text.isalnum():  # Проверка на наличие специальных символов
@@ -240,7 +242,7 @@ def get_is_document_group(callback_query: CallbackQuery) -> None:
             try:
                 bot.send_message(callback_query.message.chat.id,
                                     'У вас нет зарегистрированных групп кнопок: группе кнопок будет присвоено значение '
-                                    'Главное меню', reply_markup=ADMIN_BUTTONS_MAIN)
+                                    'Главное меню')
                 group_name = button_group_data.get('group_name')
                 button_group, created = ButtonGroup.objects.get_or_create(
                     name=group_name,
@@ -629,7 +631,7 @@ def process_new_text_text(message: Message, old_text_name: str) -> None:
 
 @admin_permission
 def edit_button_main(callback_query: CallbackQuery) -> None:
-    button_name = callback_query.data.split('_')[2]
+    button_name = callback_query.data.split('_')[3]
     keyboard = InlineKeyboardMarkup()
     keyboard.add(InlineKeyboardButton(text="удалить кнопку", callback_data=f"delete_button_{button_name}"))
     keyboard.add(InlineKeyboardButton(text="редактировать имя кнопки", callback_data=f"edit_button_name_{button_name}"))
@@ -637,9 +639,7 @@ def edit_button_main(callback_query: CallbackQuery) -> None:
     keyboard.add(InlineKeyboardButton(text="изменить родительскую группу кнопок",
                                       callback_data=f"edit_parent_button_group _{button_name}"))
     keyboard.add(InlineKeyboardButton(text="Отмена", callback_data="cancellation"))
-
-
-
+    bot.send_message(callback_query.message.chat.id, f"Выберите действие над кнопкой {button_name}", reply_markup=keyboard)
 
 
 #удаление кнопок
@@ -661,9 +661,9 @@ def delete_button(callback_query: CallbackQuery) -> None:
 
 @admin_permission
 def confirm_delete_button(callback_query: CallbackQuery) -> None:
-    button_name = callback_query.data.split('_')[3]
     try:
-        button = Button.objects.get(button_name=button_name)
+        button_name = callback_query.data.split('_')[3]
+        button = Button.objects.filter(button_name=button_name).first()
         button.delete()
         bot.send_message(
             callback_query.message.chat.id,
@@ -686,16 +686,18 @@ def edit_button_name(callback_query: CallbackQuery) -> None:
             callback_query.message.chat.id,
             f'Введите новое имя для кнопки "{button_name}":'
         )
-        bot.register_next_step_handler(callback_query.message, process_new_button_name, button_name)
+        button_data['old_name'] = button_name
+        bot.register_next_step_handler(callback_query.message, process_new_button_name)
     except Exception as e:
         logger.error(f"Ошибка при редактировании имени кнопки: {e}")
         bot.send_message(callback_query.message.chat.id, "Произошла ошибка при редактировании имени кнопки")
 
 @admin_permission 
-def process_new_button_name(message: Message, old_button_name: str) -> None:
+def process_new_button_name(message: Message) -> None:
     new_button_name = message.text
+    old_button_name =  button_data.get('old_name')
     try:
-        button = Button.objects.get(button_name=old_button_name)
+        button = Button.objects.filter(button_name=old_button_name).first()
         button.name_txt = new_button_name
         button.save()
         bot.send_message(
@@ -716,7 +718,8 @@ def edit_button_text(callback_query: CallbackQuery) -> None:
             callback_query.message.chat.id,
             f'Введите новый текст для кнопки "{button_name}":'
         )
-        bot.register_next_step_handler(callback_query.message, process_new_button_name, button_name)
+        button_data['old_name'] = button_name
+        bot.register_next_step_handler(callback_query.message, process_new_button_name)
     except Exception as e:
         logger.error(f"Ошибка при редактировании имени кнопки: {e}")
         bot.send_message(callback_query.message.chat.id, "Произошла ошибка при редактировании имени кнопки")
@@ -724,8 +727,9 @@ def edit_button_text(callback_query: CallbackQuery) -> None:
 @admin_permission 
 def process_new_button_text(message: Message, old_button_name: str) -> None:
     new_button = message.text
+    old_button_name = button_data.get('old_name')
     try:
-        button = Button.objects.get(button_name=old_button_name)
+        button = Button.objects.filter(button_name=old_button_name).first()
         button.button_text = new_button
         button.save()
         bot.send_message(
@@ -755,17 +759,6 @@ from bot.models import User, Button, ButtonGroup, Texts
 from bot.keyboards import UNIVERSAL_BUTTONS
 
 
-class IsEdit:
-    def __init__(self):
-        self.IsEdit = False
-        
-    @property
-    def is_edit(self):
-        return self.IsEdit
-        
-    @is_edit.setter 
-    def is_create_button(self, value):
-        self.IsEdit = value
 
 """
     try:
@@ -778,37 +771,49 @@ class IsEdit:
         common_admin_template += f"""
 def main_menu_call(call: CallbackQuery) -> None:
     try:
-        bot.delete_message(call.message.chat.id, call.message.message_id)
+        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text='Главное меню')
         {mainGroup.name} = InlineKeyboardMarkup()
+        user_id = call.from_user.id
+        try:
+            user = User.objects.get(telegram_id=user_id)
+            if user.is_admin:
+                {mainGroup.name}.add(InlineKeyboardButton(text='Выключить режим редактирования', callback_data='main_menu'))
+        except User.DoesNotExist:
+            pass
 """
         main_buttons = Button.objects.filter(button_group=mainGroup.name)
         for button in main_buttons:
             common_admin_template += f"""
 
-        if is_edit == True:
-            {mainGroup.name}.add(InlineKeyboardButton(text='Редакт {button.button_text}', callback_data='edit_button_main_{button.button_name}'))
         {mainGroup.name}.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))
             
         
         """
         common_admin_template += f"""
-        bot.send_message(call.message.chat.id, 'Главное меню', reply_markup={mainGroup.name})
+        bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id, reply_markup={mainGroup.name})
         """
         common_admin_template += """
     except Exception as e:
         logger.error(f'Ошибка в main_menu: {e}')
 """
 
+
         common_admin_template += f"""
 def main_menu_message(message: Message) -> None:
     try:
         {mainGroup.name} = InlineKeyboardMarkup()
+
+        user_id = message.from_user.id
+        try:
+            user = User.objects.get(telegram_id=user_id)
+            if user.is_admin:
+                {mainGroup.name}.add(InlineKeyboardButton(text='Включить режим редактирования', callback_data='edit_main_menu'))
+        except User.DoesNotExist:
+            pass
 """
         main_buttons = Button.objects.filter(button_group=mainGroup.name)
         for button in main_buttons:
             common_admin_template += f"""
-        if is_edit == True:
-            {mainGroup.name}.add(InlineKeyboardButton(text='Редакт {button.button_text}', callback_data='edit_button_main_{button.button_name}'))
         {mainGroup.name}.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))
             
         """
@@ -820,6 +825,35 @@ def main_menu_message(message: Message) -> None:
         logger.error(f'Ошибка в main_menu: {e}')
 """
 
+
+
+        common_admin_template += f"""
+def main_menu_edit(call: CallbackQuery) -> None:
+    try:
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        {mainGroup.name} = InlineKeyboardMarkup()
+        user_id = call.from_user.id
+        try:
+            user = User.objects.get(telegram_id=user_id)
+            if user.is_admin:
+                {mainGroup.name}.add(InlineKeyboardButton(text='Выключить режим редактирования', callback_data='main_menu'))
+        except User.DoesNotExist:
+            pass
+"""
+        main_buttons = Button.objects.filter(button_group=mainGroup.name)
+        for button in main_buttons:
+            common_admin_template += f"""
+        
+
+        {mainGroup.name}.add(InlineKeyboardButton(text='{button.button_text}', callback_data='edit_button_main_{button.button_name}'))
+"""
+        common_admin_template += f"""
+        bot.send_message(call.message.chat.id, 'Главное меню', reply_markup={mainGroup.name})
+"""
+        common_admin_template += """
+    except Exception as e:
+        logger.error(f'Ошибка в main_menu: {e}')
+"""
         # начало обработчика всех груп кнопок
         all_groups = ButtonGroup.objects.filter(is_main_group=False, is_document=False)
         for group in all_groups:
@@ -829,14 +863,48 @@ def {group.name}_handler(call: CallbackQuery) -> None:
     try:
         bot.delete_message(call.message.chat.id, call.message.message_id)
         {group.name} = InlineKeyboardMarkup()
+        user_id = call.from_user.id
+        try:
+            user = User.objects.get(telegram_id=user_id)
+            if user.is_admin:
+                {group.name}.add(InlineKeyboardButton(text='Включить режим редактирования', callback_data='edit_{group.name}_handler'))
+        except User.DoesNotExist:
+            pass
 """
             all_group_buttons = Button.objects.filter(button_group=group.name)
             for button in all_group_buttons:
                 common_admin_template += f"""
-        if is_edit == True:
-            {group.name}.add(InlineKeyboardButton(text='Редакт {button.button_text}', callback_data='edit_button_main_{button.button_name}'))
+        
         {group.name}.add(InlineKeyboardButton(text='{button.button_text}', callback_data='{button.button_name}'))
-            """
+"""
+            common_admin_template += f"""
+        bot.send_message(call.message.chat.id, f'главное меню', reply_markup={group.name})
+"""
+            common_admin_template += """
+    except Exception as e:
+        logger.error(f'Ошибка в обработчике : {e}')
+"""
+            common_admin_template += f"""
+@bot.callback_query_handler(func=lambda call: call.data == "edit_{group.name}_handler")
+def edit_{group.name}_handler(call: CallbackQuery) -> None:
+    try:
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        {group.name} = InlineKeyboardMarkup()
+        user_id = call.from_user.id
+        try:
+            user = User.objects.get(telegram_id=user_id)
+            if user.is_admin:
+                {group.name}.add(InlineKeyboardButton(text='Выключить режим редактирования', callback_data='edit_{group.name}_handler'))
+        except User.DoesNotExist:
+            pass
+"""
+
+            all_group_buttons = Button.objects.filter(button_group=group.name)
+            for button in all_group_buttons:
+                common_admin_template += f"""
+        
+        {group.name}.add(InlineKeyboardButton(text='{button.button_text}', callback_data='edit_button_main_{button.button_name}'))
+"""
             common_admin_template += f"""
         bot.send_message(call.message.chat.id, f'главное меню', reply_markup={group.name})
 """
@@ -853,10 +921,6 @@ def {group.name}_handler(call: CallbackQuery) -> None:
 def {text.name_txt}_handler(call: CallbackQuery) -> None:
     try:
         bot.delete_message(call.message.chat.id, call.message.message_id)
-        if is_edit == True:
-            edit = InlineKeyboardMarkup()
-            edit.add(InlineKeyboardButton(text='{text.name_txt}', callback_data='edit_text_main_{text.name_txt}'))
-        bot.send_message(call.message.chat.id, '{text.txt_text}', reply_markup=UNIVERSAL_BUTTONS)
 
 """
             common_admin_template += """
@@ -867,28 +931,26 @@ def {text.name_txt}_handler(call: CallbackQuery) -> None:
         # Записываем сгенерированный код в файл
         with open('bot/handlers/common_text.py', 'w', encoding='utf-8') as file:
             file.write(common_admin_template)
-        bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
-        try:
-            bot.send_message(
-                callback_query.message.chat.id,
-                'Файл common_admin.py успешно обновлен с обработчиками для всех кнопок',
-                reply_markup=ADMIN_BUTTONS_MAIN
-            )
-        except Exception as e:
-            logger.error(f'Ошибка при отправке сообщения в analyze_and_fill_common_admin: {e}')
+            
+        bot.edit_message_text(chat_id=callback_query.message.chat.id, 
+                            message_id=callback_query.message.message_id, 
+                            text='Файл common_admin.py успешно обновлен с обработчиками для всех кнопок')
+        bot.edit_message_reply_markup(chat_id=callback_query.message.chat.id, 
+                                    message_id=callback_query.message.message_id, 
+                                    reply_markup=ADMIN_BUTTONS_MAIN)
         logger.info('Файл common_admin.py успешно обновлен')
 
     except Exception as error:
-        bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
-        try:
-            bot.send_message(
-                callback_query.message.chat.id,
-                f'Произошла ошибка при обновлении файла: {str(error)}',
-                reply_markup=ADMIN_BUTTONS_MAIN
-            )
-        except Exception as e:
-            logger.error(f'Ошибка при отправке сообщения в analyze_and_fill_common_admin: {e}')
         logger.error(f'Ошибка при обновлении common_admin.py: {error}')
+        try:
+            bot.edit_message_text(chat_id=callback_query.message.chat.id,
+                                message_id=callback_query.message.message_id,
+                                text=f'Произошла ошибка при обновлении файла: {str(error)}')
+            bot.edit_message_reply_markup(chat_id=callback_query.message.chat.id,
+                                        message_id=callback_query.message.message_id,
+                                        reply_markup=ADMIN_BUTTONS_MAIN)
+        except Exception as send_error:
+            logger.error(f'Ошибка при отправке сообщения об ошибке: {send_error}')
 
 
 @admin_permission
