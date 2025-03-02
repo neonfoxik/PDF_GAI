@@ -5,6 +5,7 @@ from docx import Document
 
 from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from bot.keyboards import CANCELBUTTON, cancellation
+from bot.texts import FIELDS_FOR_DOCS
 from bot.models import Documents
 from bot.settings import SRS
 from bot import bot, logger
@@ -66,7 +67,7 @@ def changing(callback_query: CallbackQuery):
         bot.send_message(user_id, "Напишите новое названия")
         bot.register_next_step_handler(callback_query.message, change_name, num)
     elif act == "Fields":
-        bot.send_message(user_id, "Напишите новые поля")
+        bot.send_message(user_id, f"Напишите новые поля. {FIELDS_FOR_DOCS}")
         bot.register_next_step_handler(callback_query.message, change_fields, num)
     elif act == "Delete":
         delete_document(num)
@@ -181,7 +182,7 @@ def add_new_document_name(message: Message, num: int):
     doc = Documents.objects.get(address=num)
     doc.name = new_name
     doc.save()
-    bot.send_message(message.chat.id, "Название обновлено. Теперь отправьте поля", reply_markup=CANCELBUTTON)
+    bot.send_message(message.chat.id, f"Название обновлено. Теперь введите поля.\n{FIELDS_FOR_DOCS}", reply_markup=CANCELBUTTON)
     bot.register_next_step_handler(message, add_new_document_fields, num)
 
 
