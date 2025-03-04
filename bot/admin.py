@@ -24,10 +24,10 @@ class ButtonAdmin(admin.ModelAdmin):
 
 
 class ButtonGroupAdmin(admin.ModelAdmin):
-    list_display = ['name', 'parent_button', 'is_main_group', 'is_document']
+    list_display = ['name', 'parent_button', 'is_main_group']
     list_display_links = ['name']
     search_fields = ['name', 'parent_button']
-    list_editable = ['is_main_group', 'is_document']
+    list_editable = ['is_main_group']
 
 
 class TextsAdmin(admin.ModelAdmin):
