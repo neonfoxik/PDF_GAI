@@ -7,17 +7,39 @@ from telebot.types import (
     CallbackQuery,
 )
 
-from bot.keyboards import MENU_BUTTON
-from bot.models import User, Button, ButtonGroup, UserTemplateVariable
+from bot.keyboards import MENU_PARS_BUTTON
+from bot.models import User, Button, ButtonGroup, UserTemplateVariable, Documents
 from bot.handlers.common_text import (
     main_menu_message
 )
 from bot.texts import FAQ, LC_TEXT
 
 
-def main_menu_right(message: Message) -> None:
-    bot.send_message(message.chat.id, "Главное меню", reply_markup=MENU_BUTTON)
+def documents_main_menu(message: Message) -> None:
+    documents = Documents.objects.all()
+    markup = InlineKeyboardMarkup(row_width=2)
+    for document in documents:
+        button = InlineKeyboardButton(document.name, callback_data=f"doc_sender_{document.name}")
+        markup.add(button)
+    bot.send_message(message.chat.id, "Документы", reply_markup=markup)
 
+def documents_sender(callback_query: CallbackQuery) -> None:
+    doc_name = callback_query.data.split('_')[2]
+    keyboard = InlineKeyboardMarkup()
+    keyboard.add(InlineKeyboardButton(text="В меню", callback_data="menu"))
+    keyboard.add(InlineKeyboardButton(text="Парсинг документов", callback_data=f"markup_choose_document_{doc_name}"))
+    keyboard.add(InlineKeyboardButton(text="Изменить записанные значения переменных документа",
+                                      callback_data="ChangeDefaultUserValue111"))
+    try:
+        document = Documents.objects.get(name=doc_name)
+        bot.send_message(callback_query.message.chat.id,
+                         "Вы можете скачать документ так или выбрать над ним действие ниже",
+                         reply_markup=keyboard)
+    except Documents.DoesNotExist:
+        bot.send_message(callback_query.message.chat.id, "Документ не найден.")
+    except Exception as e:
+        logger.error(f"Ошибка при отправке документа: {e}")
+        bot.send_message(callback_query.message.chat.id, "Произошла ошибка при отправке документа.")
 
 def choose_default_user_values(callback_query: CallbackQuery) -> None:
     user_id = callback_query.from_user.id

@@ -5,7 +5,8 @@ from .common import (
     accept,
     choose_default_user_values,
     change_default_user_value,
-    main_menu_right
+    documents_main_menu,
+    documents_sender
 )
 from .user.ai import (
     chat_with_ai
@@ -13,11 +14,11 @@ from .user.ai import (
 from .common_text import (
     main_menu_message,
     main_menu_call,
-    main_menu_edit
+    main_menu_edit,
+
 )
-from .common_docx import (
-    documents_main_menu
-)
+
+
 from .admin.admin import (
     add_button,
     admin_menu,
@@ -31,7 +32,6 @@ from .admin.admin import (
     create_button_group,
     select_txt_or_docx_in_view_button_group,
     analyze_and_fill_common_admin,
-    analyze_and_fill_common_admin_docx,
     view_all_buttons_in_button_group,
     texts_admin_menu,
     documents_admin_menu,
@@ -67,8 +67,8 @@ from .admin.save_doc import (
 )
 
 from .user.pars_system import (
-    marckup_choose_document,
-    pars_document,
+    parsing
+
 )
 
 

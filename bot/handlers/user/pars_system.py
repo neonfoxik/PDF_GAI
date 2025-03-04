@@ -10,21 +10,15 @@ from bot.models import Documents, User, UserTemplateVariable
 from django.conf import settings
 from django.db import models
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, Message
-
-
-def marckup_choose_document(callback: CallbackQuery):
-    documents = Documents.objects.all()
-    marckup = InlineKeyboardMarkup()
-    for document in documents:
-        marckup.add(InlineKeyboardButton(document.name, callback_data=f"parsDocument_{document.address}"))
-    bot.send_message(callback.message.chat.id, "Выберите документ", reply_markup=marckup)
-
     
-def parsing(address: str, user: User):
-    document = Documents.objects.get(address=address)
-
+def parsing(callback: CallbackQuery):
+    user_id = callback.from_user.id  # Получаем ID пользователя из чата
+    user = User.objects.get(telegram_id=user_id)  # Получаем пользователя из базы данных
+    doc_name = callback.data.split('_')[3]
+    document = Documents.objects.filter(name=doc_name).first()
+    address = document.address
     # Загружаем шаблон
-    doc = DocxTemplate(f"{settings.SRS}{address}.docx")
+    doc = DocxTemplate(f"{settings.SRS}{document.address}.docx")
 
     context = {}
     fields_need_to_create = []
@@ -118,9 +112,6 @@ def render_document(doc: DocxTemplate, context: dict, chat_id: int):
     threading.Thread(target=delayed_delete).start()
 
 
-def pars_document(callback: CallbackQuery):
-    _, address = callback.data.split("_")
-    user = User.objects.get(telegram_id=callback.from_user.id)
-    parsing(address, user)
+
 
 
