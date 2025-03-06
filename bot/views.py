@@ -64,7 +64,7 @@ changing = bot.callback_query_handler(lambda c: c.data.startswith('document_'))(
 new_document = bot.callback_query_handler(lambda c: c.data == "create_new_document")(create_document)
 view_button_group_in_select_txt = bot.callback_query_handler(lambda c: c.data == "view_button_group_in_select_txt")\
     (view_button_group_in_select_txt)
-is_sending_to_admin = bot.callback_query_handler(lambda c: c.data.startswith('confirm'))(is_sending_to_admin)
+is_sending_to_admin = bot.callback_query_handler(lambda c: c.data.startswith('confirm_buy'))(is_sending_to_admin)
 accept = bot.callback_query_handler(lambda c: c.data.startswith("accept"))(accept)
 add_new_document = bot.callback_query_handler(lambda c: c.data == "add_new_doc")(add_new_document)
 

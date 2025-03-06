@@ -27,7 +27,7 @@ documents_act = InlineKeyboardButton(text="Документы", callback_data="d
 texts_act = InlineKeyboardButton(text="Новый текст", callback_data="create_new_text")
 upload = InlineKeyboardButton(text="Обновить кнопки", callback_data="upload_buttons_txt")
 add_user = InlineKeyboardButton(text="Действия с пользователями", callback_data="users_action")
-ADMIN_BUTTONS_MAIN.add(buttons_act).add(create_button_group).add(documents_act).add(texts_act).add(upload).add(add_user).add(create_button_group)
+ADMIN_BUTTONS_MAIN.add(buttons_act).add(create_button_group).add(documents_act).add(texts_act).add(upload).add(add_user)
 
 
 ADMIN_BUTTONS_DOC = InlineKeyboardMarkup()

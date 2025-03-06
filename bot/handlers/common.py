@@ -103,8 +103,8 @@ def buy_plan(message):
 def confirmation_to_send_admin(message: Message) -> None:
     user_id = message.from_user.id
     keyboard = InlineKeyboardMarkup(row_width=2)
-    yes_btn = InlineKeyboardButton(text="Да", callback_data=f"confirm_y_{message.id}")
-    no_btn = InlineKeyboardButton(text="Нет", callback_data=f"confirm_n_{message.id}")
+    yes_btn = InlineKeyboardButton(text="Да", callback_data=f"confirm_buy_y_{message.id}")
+    no_btn = InlineKeyboardButton(text="Нет", callback_data=f"confirm_buy_n_{message.id}")
     keyboard.add(yes_btn, no_btn)
     bot.send_message(
         chat_id=user_id,

@@ -618,7 +618,7 @@ def edit_button_name(callback_query: CallbackQuery) -> None:
 @admin_permission 
 def process_new_button_name(message: Message) -> None:
     new_button_name = message.text
-    old_button_name =  button_data.get('old_name')
+    old_button_name = button_data.get('old_name')
     try:
         button = Button.objects.filter(button_name=old_button_name).first()
         button.name_txt = new_button_name
@@ -648,7 +648,7 @@ def edit_button_text(callback_query: CallbackQuery) -> None:
         bot.send_message(callback_query.message.chat.id, "Произошла ошибка при редактировании имени кнопки")
 
 @admin_permission 
-def process_new_button_text(message: Message, old_button_name: str) -> None:
+def process_new_button_text(message: Message) -> None:
     new_button = message.text
     old_button_name = button_data.get('old_name')
     try:
