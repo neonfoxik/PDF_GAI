@@ -551,19 +551,16 @@ def process_new_text_text(message: Message, old_text_name: str) -> None:
         logger.error(f"Ошибка при сохранении нового имени текста: {e}")
         bot.send_message(message.chat.id, "Произошла ошибка при сохранении нового имени текста")
 
-
 @admin_permission
 def edit_button_main(callback_query: CallbackQuery) -> None:
+    bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
     button_name = callback_query.data.split('_')[3]
     keyboard = InlineKeyboardMarkup()
     keyboard.add(InlineKeyboardButton(text="удалить кнопку", callback_data=f"delete_button_{button_name}"))
     keyboard.add(InlineKeyboardButton(text="редактировать имя кнопки", callback_data=f"edit_button_name_{button_name}"))
     keyboard.add(InlineKeyboardButton(text="редактировать текст кнопки", callback_data=f"edit_button_text_{button_name}"))
-    keyboard.add(InlineKeyboardButton(text="изменить родительскую группу кнопок",
-                                      callback_data=f"edit_parent_button_group _{button_name}"))
     keyboard.add(InlineKeyboardButton(text="Отмена", callback_data="cancellation"))
     bot.send_message(callback_query.message.chat.id, f"Выберите действие над кнопкой {button_name}", reply_markup=keyboard)
-
 
 #удаление кнопок
 @admin_permission
@@ -587,12 +584,18 @@ def confirm_delete_button(callback_query: CallbackQuery) -> None:
     try:
         button_name = callback_query.data.split('_')[3]
         button = Button.objects.filter(button_name=button_name).first()
-        button.delete()
-        bot.send_message(
-            callback_query.message.chat.id,
-            f'Кнопка "{button_name}" успешно удалена!',
-            reply_markup=ADMIN_BUTTONS_MAIN
-        )
+        if button:
+            button.delete()
+            bot.send_message(
+                callback_query.message.chat.id,
+                f'Кнопка "{button_name}" успешно удалена!',
+                reply_markup=ADMIN_BUTTONS_MAIN
+            )
+        else:
+            bot.send_message(
+                callback_query.message.chat.id,
+                "Кнопка не найдена"
+            )
     except Exception as e:
         logger.error(f"Ошибка при удалении кнопки: {e}")
         bot.send_message(
@@ -619,15 +622,19 @@ def edit_button_name(callback_query: CallbackQuery) -> None:
 def process_new_button_name(message: Message) -> None:
     new_button_name = message.text
     old_button_name = button_data.get('old_name')
+
     try:
         button = Button.objects.filter(button_name=old_button_name).first()
-        button.name_txt = new_button_name
-        button.save()
-        bot.send_message(
-            message.chat.id,
-            f'Имя кнопки успешно изменено с "{old_button_name}" на "{new_button_name}"!',
-            reply_markup=ADMIN_BUTTONS_MAIN
-        )
+        if button:
+            button.button_name = new_button_name
+            button.save()
+            bot.send_message(
+                message.chat.id,
+                f'Имя кнопки успешно изменено с "{old_button_name}" на "{new_button_name}"!',
+                reply_markup=ADMIN_BUTTONS_MAIN
+            )
+        else:
+            bot.send_message(message.chat.id, "Кнопка не найдена")
     except Exception as e:
         logger.error(f"Ошибка при сохранении нового имени кнопки: {e}")
         bot.send_message(message.chat.id, "Произошла ошибка при сохранении нового имени кнопки")
@@ -642,27 +649,30 @@ def edit_button_text(callback_query: CallbackQuery) -> None:
             f'Введите новый текст для кнопки "{button_name}":'
         )
         button_data['old_name'] = button_name
-        bot.register_next_step_handler(callback_query.message, process_new_button_name)
+        bot.register_next_step_handler(callback_query.message, process_new_button_text)
     except Exception as e:
-        logger.error(f"Ошибка при редактировании имени кнопки: {e}")
-        bot.send_message(callback_query.message.chat.id, "Произошла ошибка при редактировании имени кнопки")
+        logger.error(f"Ошибка при редактировании текста кнопки: {e}")
+        bot.send_message(callback_query.message.chat.id, "Произошла ошибка при редактировании текста кнопки")
 
 @admin_permission 
 def process_new_button_text(message: Message) -> None:
-    new_button = message.text
+    new_button_text = message.text
     old_button_name = button_data.get('old_name')
     try:
         button = Button.objects.filter(button_name=old_button_name).first()
-        button.button_text = new_button
-        button.save()
-        bot.send_message(
-            message.chat.id,
-            f'Текст кнопки успешно изменено с "{old_button_name}" на "{new_button}"!',
-            reply_markup=ADMIN_BUTTONS_MAIN
-        )
+        if button:
+            button.button_text = new_button_text
+            button.save()
+            bot.send_message(
+                message.chat.id,
+                f'Текст кнопки успешно изменен!',
+                reply_markup=ADMIN_BUTTONS_MAIN
+            )
+        else:
+            bot.send_message(message.chat.id, "Кнопка не найдена")
     except Exception as e:
-        logger.error(f"Ошибка при сохранении нового имени кнопки: {e}")
-        bot.send_message(message.chat.id, "Произошла ошибка при сохранении нового имени кнопки")
+        logger.error(f"Ошибка при сохранении нового текста кнопки: {e}")
+        bot.send_message(message.chat.id, "Произошла ошибка при сохранении нового текста кнопки")
 
 #Обновление скриптов
 @admin_permission
