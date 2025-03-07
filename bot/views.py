@@ -53,7 +53,6 @@ documents_main_menu = bot.message_handler(commands=["documents_menu"])(documents
 
 
 admin_menu_call = bot.callback_query_handler(lambda c: c.data == "admin_menu")(admin_menu_call)
-upload_admin_menu = bot.callback_query_handler(lambda c: c.data == "upload_main")(upload_admin_menu)
 users_action_main = bot.callback_query_handler(lambda c: c.data == "users_action")(users_action_main)
 create_button = bot.callback_query_handler(lambda c: c.data == 'create_button')(add_button)
 save_button = bot.callback_query_handler(lambda c: c.data == 'save_button')(save_button_to_file)
@@ -72,10 +71,11 @@ documents_sender = bot.callback_query_handler(lambda c: c.data.startswith('doc_s
 
 edit_text_main = bot.callback_query_handler(lambda c: c.data.startswith('edit_text_main_'))(edit_text_main)
 
+
 delete_text = bot.callback_query_handler(lambda c: c.data.startswith('delete_text_'))(delete_text)
 confirm_delete_text = bot.callback_query_handler(lambda c: c.data.startswith('confirm_delete_text_'))\
     (confirm_delete_text)
-edit_text_name = bot.callback_query_handler(lambda c: c.data.startswith('edit_text_name_'))(edit_text_name)
+
 edit_text_text = bot.callback_query_handler(lambda c: c.data.startswith('edit_text_text_'))(edit_text_text)
 
 
@@ -84,24 +84,25 @@ edit_button_main = bot.callback_query_handler(lambda c: c.data.startswith('edit_
 delete_button = bot.callback_query_handler(lambda c: c.data.startswith('delete_button_'))(delete_button)
 confirm_delete_button = bot.callback_query_handler(lambda c: c.data.startswith('confirm_delete_button_'))\
     (confirm_delete_button)
-edit_button_name = bot.callback_query_handler(lambda c: c.data.startswith('edit_button_name_'))(edit_button_name)
 edit_button_text = bot.callback_query_handler(lambda c: c.data.startswith('edit_button_text_'))(edit_button_text)
 
+delete_button_group = bot.callback_query_handler(lambda c: c.data.startswith('delete_group_button_'))(delete_button_group)
+confirm_delete_group = bot.callback_query_handler(lambda c: c.data.startswith('confirm_delete_group_'))(confirm_delete_group)
 
 
-analyze_and_fill_common_admin = bot.callback_query_handler(lambda c: c.data == 'upload_buttons_txt') \
+analyze_and_fill_common_admin = bot.callback_query_handler(lambda c: c.data == 'upload_buttons_txt')\
     (analyze_and_fill_common_admin)
 main_menu = bot.callback_query_handler(lambda c: c.data == 'main_menu')(main_menu_call)
 main_menu_edit = bot.callback_query_handler(lambda c: c.data == 'edit_main_menu')(main_menu_edit)
-view_all_buttons_in_button_group = bot.callback_query_handler(lambda c: c.data == 'view_all_buttons') \
+view_all_buttons_in_button_group = bot.callback_query_handler(lambda c: c.data == 'view_all_buttons')\
     (view_all_buttons_in_button_group)
 create_button_group = bot.callback_query_handler(lambda c: c.data == 'create_new_group')(create_button_group)
 
 
 select_buttongroup_in_create_group = bot.callback_query_handler(
     lambda c: c.data.startswith('select_parent_in_create_group_'))(select_buttongroup_in_create_group)
-select_buttongroup_in_create_button = bot.callback_query_handler(lambda c: c.data.startswith('select_parent_in_button_'))\
-    (select_buttongroup_in_create_button)
+select_buttongroup_in_create_button = bot.callback_query_handler\
+    (lambda c: c.data.startswith('select_parent_in_button_'))(select_buttongroup_in_create_button)
 select_parent_in_create_text = bot.callback_query_handler(lambda c: c.data.startswith('select_parent_in_text_'))\
     (select_parent_in_create_text)
 
@@ -111,15 +112,16 @@ select_button_group = bot.callback_query_handler(lambda c: c.data.startswith('se
 view_all_buttons_for_text = bot.callback_query_handler(lambda c: c.data == 'view_all_buttons_for_text')\
     (view_all_buttons_for_text)
 
-texts_admin_menu = bot.callback_query_handler(lambda c: c.data == 'texts_actions')(texts_admin_menu)
 documents_admin_menu = bot.callback_query_handler(lambda c: c.data == 'documents_actions')(documents_admin_menu)
-button_admin_menu = bot.callback_query_handler(lambda c: c.data == 'buttons_actions')(button_admin_menu)
+
 
 parsing = bot.callback_query_handler(lambda c: c.data.startswith('markup_choose_document_'))(parsing)
 
 
-choose_default_user_values = bot.callback_query_handler(lambda c: c.data == "ChangeDefaultUserValue111")(choose_default_user_values)
-change_default_user_values = bot.callback_query_handler(lambda c: c.data.startswith("ChangeDefaultUserValue_"))(change_default_user_value)
+choose_default_user_values = bot.callback_query_handler(lambda c: c.data == "ChangeDefaultUserValue111")\
+    (choose_default_user_values)
+change_default_user_values = bot.callback_query_handler(lambda c: c.data.startswith("ChangeDefaultUserValue_"))\
+    (change_default_user_value)
 
 chat_with_ai = bot.message_handler(func=lambda message: True)(chat_with_ai)
 

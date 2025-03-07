@@ -32,24 +32,21 @@ from .admin.admin import (
     create_button_group,
     analyze_and_fill_common_admin,
     view_all_buttons_in_button_group,
-    texts_admin_menu,
     documents_admin_menu,
-    button_admin_menu,
     admin_menu_call,
     view_button_group_in_select_txt,
     select_buttongroup_in_create_button,
-    upload_admin_menu,
     users_action_main,
     add_text_to_file,
     select_parent_in_create_text,
     view_all_buttons_for_text,
     confirm_delete_text,
-    edit_text_name,
     edit_text_text,
     delete_button,
     confirm_delete_button,
-    edit_button_name,
-    edit_button_text
+    edit_button_text,
+    delete_button_group,
+    confirm_delete_group
 )
 
 
