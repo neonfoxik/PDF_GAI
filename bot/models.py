@@ -42,11 +42,11 @@ class Content(models.Model):
         return self.content_text
 
 class Button(models.Model):
+    button_id = models.AutoField(primary_key=True)
     text = models.CharField(
         max_length=20,
         verbose_name='текст кнопки'
     )
-    button_id = models.AutoField(primary_key=True)  # Изменено на AutoField для автоматической генерации порядковых значений
     child = models.ForeignKey(Content, on_delete=models.CASCADE, related_name='Child_content', blank=True, null=True)
     parent = models.ForeignKey(Content, on_delete=models.CASCADE, related_name='Parent_content')
 
@@ -55,7 +55,7 @@ class Button(models.Model):
         verbose_name_plural = 'Кнопки'
 
     def __str__(self):
-        return self.text
+        return self.button_id 
 
 
 class Documents(models.Model):
