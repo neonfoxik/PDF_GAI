@@ -1,5 +1,4 @@
 import os
-from functools import wraps
 from docx import Document
 
 
@@ -7,8 +6,7 @@ from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKe
 from bot.keyboards import CANCELBUTTON, cancellation
 from bot.texts import FIELDS_FOR_DOCS
 from bot.models import Documents
-from bot.settings import SRS
-from bot import bot, logger
+from bot import bot
 
 loc_counter = 0
 
@@ -102,7 +100,7 @@ def change_fields(message: Message, num: int):
 def delete_document(num):
     Documents.objects.get(address=num).delete()
     try:
-        os.remove(SRS+num+".docx")
+        os.remove(f"documents\{num}.docx")
     except:
         pass
 
@@ -120,7 +118,7 @@ def redc_document(message: Message, num: int):
         downloaded_file = bot.download_file(file_info.file_path)
 
         # Добавляем расширение .docx при сохранении
-        src = f"{SRS}{num}.docx"
+        src = f"documents\{num}.docx"
         with open(src, 'wb') as new_file:
             new_file.write(downloaded_file)
 
@@ -136,7 +134,7 @@ def create_document(callback_query: CallbackQuery):
     loc_counter += 1
     doc = Document()
     # Добавляем расширение .docx при сохранении
-    doc_path = f"{SRS}{str(loc_counter)}.docx"
+    doc_path = f"documents\{str(loc_counter)}.docx"
     doc.save(doc_path)
     Documents.objects.create(
         address=str(loc_counter),
@@ -162,7 +160,7 @@ def add_new_document_doc(message: Message):
     downloaded_file = bot.download_file(file_info.file_path)
 
     # Добавляем расширение .docx при сохранении
-    src = f"{SRS}{num}.docx"
+    src = f"documents\{num}.docx"
     with open(src, 'wb') as new_file:
         new_file.write(downloaded_file)
 

@@ -17,8 +17,7 @@ def parsing(callback: CallbackQuery):
     doc_name = callback.data.split('_')[3]
     document = Documents.objects.filter(name=doc_name).first()
     address = document.address
-    # Загружаем шаблон
-    doc = DocxTemplate(f"{settings.SRS}{document.address}.docx")
+    doc = DocxTemplate(f"documents/{document.address}.docx")  # Изменено на путь к папке documents
 
     context = {}
     fields_need_to_create = []
@@ -52,7 +51,7 @@ def ask_next_variable(user: User, fields: list, index: int, address: str, contex
     if index >= len(fields):
         # Все переменные собраны, можно рендерить документ
         document = Documents.objects.get(address=address)
-        doc = DocxTemplate(f"{settings.SRS}{address}.docx")
+        doc = DocxTemplate(f"documents/{address}.docx")  # Изменено на путь к папке documents
         render_document(doc, context, user.telegram_id)
         return
 
@@ -110,8 +109,3 @@ def render_document(doc: DocxTemplate, context: dict, chat_id: int):
             pass
     
     threading.Thread(target=delayed_delete).start()
-
-
-
-
-

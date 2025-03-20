@@ -1,58 +1,47 @@
 from django.contrib import admin
 from .models import (
     User,
-    Button, 
+    Content,
+    Button,
     Documents,
-    ButtonGroup,
-    Texts,
     UserTemplateVariable
 )
 
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ['telegram_id', 'name', 'has_plan', 'is_admin']
-    list_display_links = ['telegram_id', ]
-    search_fields = ['telegram_id', 'name', 'has_plan']
+    list_display_links = ['telegram_id']
+    search_fields = ['telegram_id', 'name']
     list_editable = ['has_plan', 'is_admin']
 
 
-class ButtonAdmin(admin.ModelAdmin):
-    list_display = ['button_name', 'button_group', 'button_text']
-    list_display_links = ['button_name',]
-    search_fields = ['button_name', 'button_group', 'button_text']
-    list_editable = ['button_group', 'button_text']
-
-
-class ButtonGroupAdmin(admin.ModelAdmin):
-    list_display = ['name', 'parent_button', 'is_main_group']
-    list_display_links = ['name']
-    search_fields = ['name', 'parent_button']
-    list_editable = ['is_main_group']
-
-
-class TextsAdmin(admin.ModelAdmin):
-    list_display = ['name_txt', 'parent_button', 'txt_text']
-    list_display_links = ['name_txt']
-    search_fields = ['name_txt', 'parent_button', 'txt_text']
-    list_editable = ['parent_button', 'txt_text']
-
-
 class DocumentsAdmin(admin.ModelAdmin):
-    list_display = ['address', 'name', 'template_fields']
-    list_display_links = ['name', ]
+    list_display = ['address', 'name']
+    list_display_links = ['name']
     search_fields = ['address', 'name']
 
 
 class UserTemplateVariableAdmin(admin.ModelAdmin):
-    list_display = ['user', 'display_name', 'template_field', 'value', 'created_at', 'updated_at']
+    list_display = ['user', 'display_name', 'template_field', 'value']
     list_display_links = ['user', 'display_name']
-    search_fields = ['user__name', 'display_name', 'template_field']
+    search_fields = ['user__name', 'display_name']
     list_editable = ['value']
 
 
+class ContentAdmin(admin.ModelAdmin):
+    list_display = ['content_text', 'is_main_group']
+    list_display_links = ['content_text']
+    search_fields = ['content_text']
+
+
+class ButtonAdmin(admin.ModelAdmin):
+    list_display = ['text', 'parent']
+    list_display_links = ['text']
+    search_fields = ['text']
+
+
 admin.site.register(User, UserAdmin)
-admin.site.register(Documents, DocumentsAdmin) 
-admin.site.register(Button, ButtonAdmin)
-admin.site.register(ButtonGroup, ButtonGroupAdmin)
-admin.site.register(Texts, TextsAdmin)
+admin.site.register(Documents, DocumentsAdmin)
 admin.site.register(UserTemplateVariable, UserTemplateVariableAdmin)
+admin.site.register(Content, ContentAdmin)
+admin.site.register(Button, ButtonAdmin)
