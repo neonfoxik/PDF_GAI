@@ -30,7 +30,6 @@ class Content(models.Model):
     content_text = models.CharField(
         max_length=4000,
         verbose_name='текст контента',
-        primary_key = True,
     )
     is_main_group = models.BooleanField(default=False)
 
@@ -42,20 +41,19 @@ class Content(models.Model):
         return self.content_text
 
 class Button(models.Model):
-    button_id = models.AutoField(primary_key=True, default=0)
     text = models.CharField(
         max_length=20,
         verbose_name='текст кнопки'
     )
     child = models.ForeignKey(Content, on_delete=models.CASCADE, related_name='Child_content', blank=True, null=True)
-    parent = models.ForeignKey(Content, on_delete=models.CASCADE, related_name='Parent_content', blank=True, null=True)
+    parent = models.ForeignKey(Content, on_delete=models.CASCADE, related_name='Parent_content')
 
     class Meta:
         verbose_name = 'кнопка'
         verbose_name_plural = 'Кнопки'
 
     def __str__(self):
-        return self.button_id 
+        return self.text
 
 
 class Documents(models.Model):
