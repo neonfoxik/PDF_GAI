@@ -48,7 +48,7 @@ class Button(models.Model):
         verbose_name='текст кнопки'
     )
     child = models.ForeignKey(Content, on_delete=models.CASCADE, related_name='Child_content', blank=True, null=True)
-    parent = models.ForeignKey(Content, on_delete=models.CASCADE, related_name='Parent_content')
+    parent = models.ForeignKey(Content, on_delete=models.CASCADE, related_name='Parent_content', blank=True, null=True)
 
     class Meta:
         verbose_name = 'кнопка'
