@@ -152,18 +152,28 @@ def documents_main_menu(message: Message) -> None:
         markup.add(button)
     bot.send_message(message.chat.id, "Документы", reply_markup=markup)
 
+def documents_menu_call(call: CallbackQuery) -> None:
+    documents = Documents.objects.all()
+    markup = InlineKeyboardMarkup(row_width=2)
+    for document in documents:
+        button = InlineKeyboardButton(document.name, callback_data=f"doc_sender_{document.name}")
+        markup.add(button)
+    bot.edit_message_text(chat_id=call.message.chat.id, text="Документы", reply_markup=markup
+                          , message_id=call.message.message_id)
+
+
 
 def documents_sender(callback_query: CallbackQuery) -> None:
     doc_name = callback_query.data.split('_')[2]
     keyboard = InlineKeyboardMarkup()
-    keyboard.add(InlineKeyboardButton(text="В меню", callback_data="menu"))
+    keyboard.add(InlineKeyboardButton(text="В меню", callback_data="documents_menu_call"))
     keyboard.add(InlineKeyboardButton(text="Парсинг документов", callback_data=f"markup_choose_document_{doc_name}"))
     keyboard.add(InlineKeyboardButton(text="Изменить записанные значения переменных документа",
                                       callback_data="ChangeDefaultUserValue111"))
     try:
-        bot.send_message(callback_query.message.chat.id,
-                         "Вы можете скачать документ так или выбрать над ним действие ниже",
-                         reply_markup=keyboard)
+        bot.edit_message_text(chat_id=callback_query.message.chat.id,
+                         text="Вы можете скачать документ так или выбрать над ним действие ниже",
+                         reply_markup=keyboard, message_id=callback_query.message.message_id)
     except Documents.DoesNotExist:
         bot.send_message(callback_query.message.chat.id, "Документ не найден.")
     except Exception as e:
@@ -179,13 +189,14 @@ def choose_default_user_values(callback_query: CallbackQuery) -> None:
 
     for variable in user_variables:
         button = InlineKeyboardButton(variable.display_name,
-                                      callback_data=f"ChangeDefaultUserValue_{variable.template_field}")
+                                      callback_data=f"ChangeDefaultUserValue__{variable.template_field}")
         markup.add(button)
     bot.send_message(user_id, "Выберете переменную которую хотите изменить", reply_markup=markup)
 
 
 def change_default_user_value(callback_query: CallbackQuery) -> None:
-    data_parts = callback_query.data.split("_")
+    data_parts = callback_query.data.split("__")
+    print(data_parts)
     if len(data_parts) < 2:
         bot.send_message(callback_query.message.chat.id, "Ошибка: неверные данные.")
         return

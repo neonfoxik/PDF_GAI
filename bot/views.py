@@ -53,8 +53,8 @@ documents_main_menu = bot.message_handler(commands=["documents_menu"])(documents
 next_button_menu = bot.callback_query_handler(lambda c: c.data.startswith('bim_'))(next_button_menu)
 old_button_menu = bot.callback_query_handler(lambda c: c.data.startswith('back_btn_'))(old_button_menu)
 main_menu_call = bot.callback_query_handler(lambda c: c.data == 'main_menu_call')(main_menu_call)
-
-
+documents_menu_call = bot.callback_query_handler(lambda c: c.data == 'documents_menu_call')(documents_menu_call)
+cancellation = bot.callback_query_handler(lambda c: c.data == 'cancellation')(admin_menu_call)
 change_documents = bot.callback_query_handler(lambda c: c.data == 'load_file')(change_documents)
 choose_move = bot.callback_query_handler(lambda c: c.data.startswith('chsDoc'))(choose_move)
 changing = bot.callback_query_handler(lambda c: c.data.startswith('document_'))(changing)

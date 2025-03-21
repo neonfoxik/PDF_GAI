@@ -15,10 +15,6 @@ UNIVERSAL_BUTTONS = InlineKeyboardMarkup()
 back = InlineKeyboardButton(text="Назад в меню 🔙", callback_data="main_menu")
 UNIVERSAL_BUTTONS.add(back)
 
-SAVE_BUTTONS = InlineKeyboardMarkup()
-save = InlineKeyboardButton(text="Сохранить кнопку", callback_data="save_button")
-cancellation = InlineKeyboardButton(text="Отмена", callback_data="cancellation")
-SAVE_BUTTONS.add(save).add(cancellation)
 
 
 ADMIN_BUTTONS_DOC = InlineKeyboardMarkup()

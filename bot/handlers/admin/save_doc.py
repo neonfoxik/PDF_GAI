@@ -56,6 +56,7 @@ def choose_move(callback_query: CallbackQuery):
 
 
 def changing(callback_query: CallbackQuery):
+    bot.delete_message(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id)
     user_id = callback_query.message.chat.id
     callback = callback_query.data
 
