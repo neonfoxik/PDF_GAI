@@ -41,6 +41,7 @@ class Content(models.Model):
         return self.content_text
 
 class Button(models.Model):
+    button_id = models.AutoField(primary_key=True)
     text = models.CharField(
         max_length=20,
         verbose_name='текст кнопки'
@@ -52,8 +53,8 @@ class Button(models.Model):
         verbose_name = 'кнопка'
         verbose_name_plural = 'Кнопки'
 
-    def __str__(self):
-        return self.text
+    def __int__(self):
+        return self.button_id
 
 
 class Documents(models.Model):

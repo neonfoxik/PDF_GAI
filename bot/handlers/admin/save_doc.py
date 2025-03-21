@@ -100,7 +100,7 @@ def change_fields(message: Message, num: int):
 def delete_document(num):
     Documents.objects.get(address=num).delete()
     try:
-        os.remove(f"documents\{num}.docx")
+        os.remove(f"documents/{num}.docx")
     except:
         pass
 
@@ -109,7 +109,7 @@ def redc_document(message: Message, num: int):
     try:
         # Удаляем старый файл если он существует
         try:
-            os.remove(f"{SRS}{num}.docx")
+            os.remove(f"documents/{num}.docx")
         except:
             pass
 
@@ -118,7 +118,7 @@ def redc_document(message: Message, num: int):
         downloaded_file = bot.download_file(file_info.file_path)
 
         # Добавляем расширение .docx при сохранении
-        src = f"documents\{num}.docx"
+        src = f"documents/{num}.docx"
         with open(src, 'wb') as new_file:
             new_file.write(downloaded_file)
 
@@ -134,7 +134,7 @@ def create_document(callback_query: CallbackQuery):
     loc_counter += 1
     doc = Document()
     # Добавляем расширение .docx при сохранении
-    doc_path = f"documents\{str(loc_counter)}.docx"
+    doc_path = f"documents/{str(loc_counter)}.docx"
     doc.save(doc_path)
     Documents.objects.create(
         address=str(loc_counter),
@@ -160,7 +160,7 @@ def add_new_document_doc(message: Message):
     downloaded_file = bot.download_file(file_info.file_path)
 
     # Добавляем расширение .docx при сохранении
-    src = f"documents\{num}.docx"
+    src = f"documents/{num}.docx"
     with open(src, 'wb') as new_file:
         new_file.write(downloaded_file)
 

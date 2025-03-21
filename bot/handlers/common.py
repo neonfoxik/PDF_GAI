@@ -28,7 +28,7 @@ def start(message: Message) -> None:
             buy_plan(message)
     except Exception as e:
         logger.error(f"Ошибка в обработчике start: {e}")
-        bot.send_message(message.chat.id, "Произошла ошибка при обработке команды")
+        bot.send_message(message.chat.id, f"Произошла ошибка при обработке команды {e}")
 
 
 
@@ -185,18 +185,30 @@ def choose_default_user_values(callback_query: CallbackQuery) -> None:
 
 
 def change_default_user_value(callback_query: CallbackQuery) -> None:
-    _, template_field = callback_query.data.split("_")
+    data_parts = callback_query.data.split("_")
+    if len(data_parts) < 2:
+        bot.send_message(callback_query.message.chat.id, "Ошибка: неверные данные.")
+        return
+    template_field = data_parts[1]
     user = User.objects.get(telegram_id=callback_query.from_user.id)
-    user_variables = UserTemplateVariable.objects.filter(user=user).filter(template_field=template_field).first()
+    user_variables = UserTemplateVariable.objects.filter(user=user, template_field=template_field).first()
+    
+    if user_variables is None:
+        bot.send_message(callback_query.message.chat.id, "Ошибка: переменная не найдена.")
+        return
+
     bot.send_message(user.telegram_id, f"Выберете значение для {user_variables.display_name}")
     bot.register_next_step_handler(callback_query.message, change_default_user_value_step, template_field)
 
 
 def change_default_user_value_step(message: Message, template_field) -> None:
     user = User.objects.get(telegram_id=message.from_user.id)
-    user_variables = UserTemplateVariable.objects.filter(user=user).filter(template_field=template_field).first()
+    user_variables = UserTemplateVariable.objects.filter(user=user, template_field=template_field).first()
+    
+    if user_variables is None:
+        bot.send_message(message.chat.id, "Ошибка: переменная не найдена.")
+        return
+
     user_variables.value = message.text
     user_variables.save()
     bot.send_message(user.telegram_id, "Значение изменено")
-
-
