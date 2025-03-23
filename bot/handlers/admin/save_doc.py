@@ -101,7 +101,8 @@ def change_fields(message: Message, num: int):
 def delete_document(num):
     Documents.objects.get(address=num).delete()
     try:
-        os.remove(f"documents/{num}.docx")
+        document = os.path.join(os.path.dirname(__file__), "..", "..", "documents", f"{num}.docx")
+        os.remove(document)
     except:
         pass
 
@@ -110,7 +111,8 @@ def redc_document(message: Message, num: int):
     try:
         # Удаляем старый файл если он существует
         try:
-            os.remove(f"documents/{num}.docx")
+            document = os.path.join(os.path.dirname(__file__), "..", "..", "documents", f"{num}.docx")
+            os.remove(document)
         except:
             pass
 
@@ -118,9 +120,8 @@ def redc_document(message: Message, num: int):
         file_info = bot.get_file(message.document.file_id)
         downloaded_file = bot.download_file(file_info.file_path)
 
-        # Добавляем расширение .docx при сохранении
-        src = f"documents/{num}.docx"
-        with open(src, 'wb') as new_file:
+        document = os.path.join(os.path.dirname(__file__), "..", "..", "documents", f"{num}.docx")
+        with open(document, 'wb') as new_file:
             new_file.write(downloaded_file)
 
         bot.reply_to(message, "Сохранено")
@@ -134,8 +135,7 @@ def create_document(callback_query: CallbackQuery):
     global loc_counter
     loc_counter += 1
     doc = Document()
-    # Добавляем расширение .docx при сохранении
-    doc_path = f"documents/{str(loc_counter)}.docx"
+    doc_path = os.path.join(os.path.dirname(__file__), "..", "..", "documents", f"{str(loc_counter)}.docx")
     doc.save(doc_path)
     Documents.objects.create(
         address=str(loc_counter),
@@ -161,8 +161,8 @@ def add_new_document_doc(message: Message):
     downloaded_file = bot.download_file(file_info.file_path)
 
     # Добавляем расширение .docx при сохранении
-    src = f"documents/{num}.docx"
-    with open(src, 'wb') as new_file:
+    document = os.path.join(os.path.dirname(__file__), "..", "..", "documents", f"{num}.docx")
+    with open(document, 'wb') as new_file:
         new_file.write(downloaded_file)
 
     Documents.objects.create(
