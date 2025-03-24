@@ -136,13 +136,16 @@ def create_document(callback_query: CallbackQuery):
     loc_counter += 1
     doc = Document()
     doc_path = os.path.join(os.path.dirname(__file__), "..", "..", "documents", f"{str(loc_counter)}.docx")
-    doc.save(doc_path)
-    Documents.objects.create(
-        address=str(loc_counter),
-        name=str(loc_counter),
-        template_fields={}
-    )
-    bot.send_message(callback_query.message.chat.id, "Новый документ создан")
+    try:
+        doc.save(doc_path)
+        Documents.objects.create(
+            address=str(loc_counter),
+            name=str(loc_counter),
+            template_fields={}
+        )
+        bot.send_message(callback_query.message.chat.id, "Новый документ создан")
+    except Exception as e:
+        bot.send_message(callback_query.message.chat.id, f"Ошибка при создании документа: {str(e)}")
 
 
 def add_new_document(call: CallbackQuery):
@@ -154,38 +157,46 @@ def add_new_document(call: CallbackQuery):
 def add_new_document_doc(message: Message):
     global loc_counter
     loc_counter += 1
-    num = str(loc_counter)
+    num = str(loc_counter)  # num должен быть строкой
     chat_id = message.chat.id
 
-    file_info = bot.get_file(message.document.file_id)
-    downloaded_file = bot.download_file(file_info.file_path)
+    try:
+        file_info = bot.get_file(message.document.file_id)
+        downloaded_file = bot.download_file(file_info.file_path)
 
-    # Добавляем расширение .docx при сохранении
-    document = os.path.join(os.path.dirname(__file__), "..", "..", "documents", f"{num}.docx")
-    with open(document, 'wb') as new_file:
-        new_file.write(downloaded_file)
+        # Сохраняем в бинарном режиме
+        document_path = os.path.join(os.path.dirname(__file__), "..", "..", "documents", f"{num}.docx")
+        with open(document_path, 'wb') as new_file:  # Открываем в бинарном режиме для записи
+            new_file.write(downloaded_file)
 
-    Documents.objects.create(
-        address=str(num),
-        name=str(num),
-        template_fields={}
-    )
+        Documents.objects.create(
+            address=str(num),
+            name=str(num),
+            template_fields={}
+        )
 
-    bot.reply_to(message, "Сохранено, отправьте название документа", reply_markup=CANCELBUTTON)
-    bot.register_next_step_handler(message, add_new_document_name, num)
+        bot.reply_to(message, "Сохранено, отправьте название документа", reply_markup=CANCELBUTTON)
+        bot.register_next_step_handler(message, add_new_document_name, num) # передаем num как строку
+    except Exception as e:
+        bot.send_message(chat_id, f"Произошла ошибка при сохранении файла: {str(e)}")
 
 
-def add_new_document_name(message: Message, num: int):
+def add_new_document_name(message: Message, num: str):
     new_name = message.text
 
-    doc = Documents.objects.get(address=num)
-    doc.name = new_name
-    doc.save()
-    bot.send_message(message.chat.id, f"Название обновлено. Теперь введите поля.\n{FIELDS_FOR_DOCS}", reply_markup=CANCELBUTTON)
-    bot.register_next_step_handler(message, add_new_document_fields, num)
+    try:
+        doc = Documents.objects.get(address=num)
+        doc.name = new_name
+        doc.save()
+        bot.send_message(message.chat.id, f"Название обновлено. Теперь введите поля.\n{FIELDS_FOR_DOCS}", reply_markup=CANCELBUTTON)
+        bot.register_next_step_handler(message, add_new_document_fields, num)
+    except Documents.DoesNotExist:
+        bot.send_message(message.chat.id, f"Документ с номером {num} не найден.")
+    except Exception as e:
+        bot.send_message(message.chat.id, f"Ошибка при обновлении имени документа: {str(e)}")
 
 
-def add_new_document_fields(message: Message, num: int):
+def add_new_document_fields(message: Message, num: str):
     fields_str = message.text
 
     try:

@@ -16,7 +16,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '(tu7fvnsgmyk*9)dnre_qp4&6@sgu#$18u=yp3m+2c=tvkj9+w'
 # SECURITY WARNING: keep the secret key used in production secret!
 ASSISTANT_PROMPT="ты крутой юрист и помогаешь разобраться в ситуациях на дороге"
-
+PROVIDER_NAME = "vsegpt"
+PROVIDER = "https://api.vsegpt.ru/v1"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 

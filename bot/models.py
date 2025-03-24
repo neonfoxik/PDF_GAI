@@ -13,11 +13,11 @@ class User(models.Model):
     is_admin = models.BooleanField(default=False)
     has_plan = models.BooleanField(default=False)
 
-    message_context = models.JSONField(
+    chat_history = models.JSONField(
         verbose_name='История переписки пользователя',
         null=True,
         blank=True,
-        default=[]
+        default=dict
     )
     def __str__(self):
         return str(self.name)
