@@ -9,7 +9,7 @@ from telebot.types import (
 
 from bot.keyboards import MENU_PARS_BUTTON
 from bot.models import User, UserTemplateVariable, Documents, Content, Button
-from bot.texts import FAQ, LC_TEXT
+from bot.texts import FAQ
 
 
 def start(message: Message) -> None:

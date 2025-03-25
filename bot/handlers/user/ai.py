@@ -13,6 +13,7 @@ from datetime import datetime
 from django.conf import settings
 from bot import AI_ASSISTANT, bot, logger
 from bot.core import check_registration
+from bot.models import User
 
 from bot.texts import NOT_IN_DB_TEXT
 from bot.apis.long_messages import split_message
@@ -29,9 +30,11 @@ def chat_with_ai(message: Message) -> None:
 
     try:
         response = AI_ASSISTANT.get_response(chat_id=user_id, text=user_message)
-
+        if not response:
+            raise Exception("Не удалось получить ответ от AI")
 
         response_message = response['message']
+        user = User.objects.get(telegram_id=user_id)
 
         if len(response_message) > 4096:
             user.ai_response = response_message
@@ -49,11 +52,10 @@ def chat_with_ai(message: Message) -> None:
                     chat_id=user_id,
                     message_id=msg.message_id,
                     parse_mode='Markdown')
-            except:
+            except Exception as e:
+                logger.critical(f"Ошибка при редактировании сообщения: {e}")
                 bot.edit_message_text(text=response_message, chat_id=user_id, message_id=msg.message_id)
 
     except Exception as e:
         bot.send_message(user_id, 'Пока мы чиним бот. Если это продолжается слишком долго, напишите нам - /help')
-        bot.send_message(user_id, e)
         logger.critical(e)
-

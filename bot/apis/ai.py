@@ -12,7 +12,7 @@ dotenv.load_dotenv()
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-ASSISTANT_PROMPT = 'settings.ASSISTANT_PROMPT'
+ASSISTANT_PROMPT = settings.ASSISTANT_PROMPT  # Исправлено: убрано лишнее ' '
 
 openai.base_url = "https://api.vsegpt.ru:6070/v1/"
 
@@ -24,7 +24,7 @@ class BaseAIAPI:
         self._TEMPERATURE = 0.7
 
     def clear_chat_history(self, chat_id: int) -> None:
-        self.chat_history.pop(chat_id)
+        self.chat_history.pop(chat_id, None)  # Исправлено: добавлен второй аргумент для предотвращения KeyError
 
 
 class OpenAIAPI(BaseAIAPI):
@@ -61,10 +61,10 @@ class OpenAIAPI(BaseAIAPI):
             return answer
 
         except Exception as e:
-            print(e)
+            print("Не удалось получить ответ от AI:", e)  # Исправлено: добавлено сообщение об ошибке
 
     def add_txt_to_user_chat_history(self, chat_id: int, text: str) -> None:
         try:
             self._get_or_create_user_chat_history(chat_id, text)
         except Exception as e:
-            print("Error occurred while adding text to user chat history")
+            print("Ошибка при добавлении текста в историю чата пользователя:", e)  # Исправлено: улучшено сообщение об ошибке

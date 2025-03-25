@@ -1,7 +1,6 @@
 import os
 from docx import Document
 
-
 from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from bot.keyboards import CANCELBUTTON, cancellation
 from bot.texts import FIELDS_FOR_DOCS
@@ -9,7 +8,7 @@ from bot.models import Documents
 from bot import bot
 
 loc_counter = 0
-
+DOCUMENTS_DIR = "documents"
 
 def parse_template_fields(fields_str: str) -> dict:
     """Преобразует строку формата 'ключ : значение; ключ2 : значение2' в словарь"""
@@ -29,7 +28,6 @@ def parse_template_fields(fields_str: str) -> dict:
                 result[key] = value
     return result
 
-
 def change_documents(callback_query: CallbackQuery):
     user_id = callback_query.message.chat.id
     documents = Documents.objects.all()
@@ -39,7 +37,6 @@ def change_documents(callback_query: CallbackQuery):
         buttons.add(button)
 
     bot.send_message(user_id, text="Выберете документ", reply_markup=buttons)
-
 
 def choose_move(callback_query: CallbackQuery):
     user_id = callback_query.message.chat.id
@@ -53,7 +50,6 @@ def choose_move(callback_query: CallbackQuery):
 
     admin_markup.add(change_name, change_fields, change_document, del_document, cancellation)
     bot.send_message(user_id, text="Что нужно сделать с этим документом?", reply_markup=admin_markup)
-
 
 def changing(callback_query: CallbackQuery):
     bot.delete_message(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id)
@@ -75,7 +71,6 @@ def changing(callback_query: CallbackQuery):
         bot.send_message(user_id, "Отправьте новый файл")
         bot.register_next_step_handler(callback_query.message, redc_document, num)
 
-
 def change_name(message: Message, num: int):
     new_name = message.text
 
@@ -83,7 +78,6 @@ def change_name(message: Message, num: int):
     doc.name = new_name
     doc.save()
     bot.send_message(message.chat.id, "Название обновлено.")
-
 
 def change_fields(message: Message, num: int):
     fields_str = message.text
@@ -97,45 +91,44 @@ def change_fields(message: Message, num: int):
     except Exception as e:
         bot.send_message(message.chat.id, f"Ошибка при обновлении полей: {str(e)}\nУбедитесь, что формат соответствует 'ключ : значение; ключ2 : значение2'")
 
-
 def delete_document(num):
     Documents.objects.get(address=num).delete()
     try:
-        document = os.path.join(os.path.dirname(__file__), "..", "..", "documents", f"{num}.docx")
+        document = os.path.join(DOCUMENTS_DIR, f"{num}.docx")
         os.remove(document)
-    except:
-        pass
-
+    except FileNotFoundError:
+        bot.send_message(chat_id, f"Документ {num}.docx не найден. Убедитесь, что файл существует.")
+    except Exception as e:
+        bot.send_message(chat_id, f"Ошибка при удалении документа: {str(e)}")
 
 def redc_document(message: Message, num: int):
     try:
         # Удаляем старый файл если он существует
         try:
-            document = os.path.join(os.path.dirname(__file__), "..", "..", "documents", f"{num}.docx")
+            document = os.path.join(DOCUMENTS_DIR, f"{num}.docx")
             os.remove(document)
-        except:
+        except FileNotFoundError:
             pass
 
         chat_id = message.chat.id
         file_info = bot.get_file(message.document.file_id)
         downloaded_file = bot.download_file(file_info.file_path)
 
-        document = os.path.join(os.path.dirname(__file__), "..", "..", "documents", f"{num}.docx")
+        document = os.path.join(DOCUMENTS_DIR, f"{num}.docx")
         with open(document, 'wb') as new_file:
             new_file.write(downloaded_file)
 
         bot.reply_to(message, "Сохранено")
     except Exception as e:
-        bot.reply_to(message, e)
+        bot.reply_to(message, f"Произошла ошибка: {str(e)}")
 
     bot.send_message(message.chat.id, "Документ обновлен.")
-
 
 def create_document(callback_query: CallbackQuery):
     global loc_counter
     loc_counter += 1
     doc = Document()
-    doc_path = os.path.join(os.path.dirname(__file__), "..", "..", "documents", f"{str(loc_counter)}.docx")
+    doc_path = os.path.join(DOCUMENTS_DIR, f"{str(loc_counter)}.docx")
     try:
         doc.save(doc_path)
         Documents.objects.create(
@@ -147,12 +140,10 @@ def create_document(callback_query: CallbackQuery):
     except Exception as e:
         bot.send_message(callback_query.message.chat.id, f"Ошибка при создании документа: {str(e)}")
 
-
 def add_new_document(call: CallbackQuery):
     user_id = call.message.chat.id
     bot.send_message(user_id, "Отправьте документ")
     bot.register_next_step_handler(call.message, add_new_document_doc)
-
 
 def add_new_document_doc(message: Message):
     global loc_counter
@@ -165,7 +156,7 @@ def add_new_document_doc(message: Message):
         downloaded_file = bot.download_file(file_info.file_path)
 
         # Сохраняем в бинарном режиме
-        document_path = os.path.join(os.path.dirname(__file__), "..", "..", "documents", f"{num}.docx")
+        document_path = os.path.join(DOCUMENTS_DIR, f"{num}.docx")
         with open(document_path, 'wb') as new_file:  # Открываем в бинарном режиме для записи
             new_file.write(downloaded_file)
 
@@ -180,7 +171,6 @@ def add_new_document_doc(message: Message):
     except Exception as e:
         bot.send_message(chat_id, f"Произошла ошибка при сохранении файла: {str(e)}")
 
-
 def add_new_document_name(message: Message, num: str):
     new_name = message.text
 
@@ -194,7 +184,6 @@ def add_new_document_name(message: Message, num: str):
         bot.send_message(message.chat.id, f"Документ с номером {num} не найден.")
     except Exception as e:
         bot.send_message(message.chat.id, f"Ошибка при обновлении имени документа: {str(e)}")
-
 
 def add_new_document_fields(message: Message, num: str):
     fields_str = message.text
