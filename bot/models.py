@@ -19,6 +19,7 @@ class User(models.Model):
         blank=True,
         default=dict
     )
+    
     def __str__(self):
         return str(self.name)
 
@@ -29,7 +30,7 @@ class User(models.Model):
 
 class Content(models.Model):
     content_text = models.CharField(
-        max_length=4096,
+        max_length=2048,  # Уменьшено с 4096 до 2048 для предотвращения ошибки
         verbose_name='текст контента',
     )
     is_main_group = models.BooleanField(default=False)
@@ -91,5 +92,3 @@ class UserTemplateVariable(models.Model):
 
     def __str__(self):
         return f"{self.display_name} ({self.template_field})"
-
-
