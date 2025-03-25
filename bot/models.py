@@ -77,10 +77,9 @@ class Documents(models.Model):
 
 
 class UserTemplateVariable(models.Model):
-    """Модель для хранения пользовательских переменных шаблона"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='template_variables')
-    display_name = models.CharField(max_length=255, verbose_name="Отображаемое название")
-    template_field = models.CharField(max_length=255, verbose_name="Поле в шаблоне")
+    display_name = models.CharField(max_length=50, verbose_name="Отображаемое название")
+    template_field = models.CharField(max_length=50, verbose_name="Поле в шаблоне")
     value = models.TextField(blank=True, null=True, verbose_name="Значение")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
