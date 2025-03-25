@@ -30,7 +30,7 @@ class User(models.Model):
 
 class Content(models.Model):
     content_text = models.CharField(
-        max_length=2048,  # Уменьшено с 4096 до 2048 для предотвращения ошибки
+        max_length=1024,  # Уменьшено с 2048 до 1024 для предотвращения ошибки
         verbose_name='текст контента',
     )
     is_main_group = models.BooleanField(default=False)
@@ -38,6 +38,10 @@ class Content(models.Model):
     class Meta:
         verbose_name = 'Контент'
         verbose_name_plural = 'Контенты'
+        # Добавляем индекс с ограниченной длиной для content_text
+        indexes = [
+            models.Index(fields=['content_text'], name='content_text_idx')
+        ]
 
     def __str__(self):
         return self.content_text[:10]
