@@ -88,14 +88,6 @@ else:
             "USER": os.getenv("NAME_DB"),
             "PASSWORD": os.getenv("PASS_DB"),
             "HOST": "127.0.0.1",
-            "OPTIONS": {
-                "charset": "utf8mb4",
-                "init_command": "SET character_set_connection=utf8mb4;SET collation_connection=utf8mb4_unicode_ci;SET sql_mode='STRICT_TRANS_TABLES';",
-            },
-            "TEST": {
-                "CHARSET": "utf8mb4",
-                "COLLATION": "utf8mb4_unicode_ci",
-            },
         }
     }
 
