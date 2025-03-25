@@ -81,7 +81,7 @@ class UserTemplateVariable(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='template_variables')
     display_name = models.CharField(max_length=30, verbose_name="Отображаемое название")
     template_field = models.CharField(max_length=30, verbose_name="Поле в шаблоне")
-    value = models.TextField(blank=True, null=True, verbose_name="Значение")
+    value = models.TextField(max_length=30, blank=True, null=True, verbose_name="Значение")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
