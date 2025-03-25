@@ -30,7 +30,7 @@ class User(models.Model):
 
 class Content(models.Model):
     content_text = models.CharField(
-        max_length=1024,  # Уменьшено с 2048 до 1024 для предотвращения ошибки
+        max_length=4096,  # Уменьшено с 2048 до 1024 для предотвращения ошибки
         verbose_name='текст контента',
     )
     is_main_group = models.BooleanField(default=False)
