@@ -88,10 +88,6 @@ else:
             "USER": os.getenv("NAME_DB"),
             "PASSWORD": os.getenv("PASS_DB"),
             "HOST": "127.0.0.1",
-            'OPTIONS': {
-                'charset': 'utf8',
-                'init_command': 'SET innodb_strict_mode=0'
-            }
         }
     }
 
