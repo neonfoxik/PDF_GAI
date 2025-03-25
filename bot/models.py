@@ -39,7 +39,7 @@ class Content(models.Model):
         verbose_name_plural = 'Контенты'
 
     def __str__(self):
-        return self.content_text
+        return self.content_text[:10]
 
 class Button(models.Model):
     button_id = models.AutoField(primary_key=True, default=0)
