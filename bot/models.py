@@ -60,8 +60,7 @@ class Button(models.Model):
 
 class Documents(models.Model):
     address = models.CharField(
-        max_length=40,
-        primary_key=True
+        max_length=40
     )
     name = models.CharField(
         max_length=40,
