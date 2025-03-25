@@ -29,7 +29,7 @@ class User(models.Model):
 
 class Content(models.Model):
     content_text = models.CharField(
-        max_length=1000,
+        max_length=4096,
         verbose_name='текст контента',
     )
     is_main_group = models.BooleanField(default=False)
