@@ -30,7 +30,7 @@ class User(models.Model):
 
 class Content(models.Model):
     content_text = models.CharField(
-        max_length=100,
+        max_length=4096,
         verbose_name='текст контента',
     )
     is_main_group = models.BooleanField(default=False)
@@ -79,8 +79,8 @@ class Documents(models.Model):
 
 class UserTemplateVariable(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='template_variables')
-    display_name = models.CharField(max_length=30, verbose_name="Отображаемое название")
-    template_field = models.CharField(max_length=30, verbose_name="Поле в шаблоне")
+    display_name = models.CharField(max_length=50, verbose_name="Отображаемое название")
+    template_field = models.CharField(max_length=50, verbose_name="Поле в шаблоне")
     value = models.TextField(blank=True, null=True, verbose_name="Значение")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -8,7 +8,7 @@ from bot.models import Documents
 from bot import bot
 
 loc_counter = 0
-DOCUMENTS_DIR = "documents"
+DOCUMENTS_DIR = os.path.dirname(__file__), "..", "..", "documents"
 
 def parse_template_fields(fields_str: str) -> dict:
     """Преобразует строку формата 'ключ : значение; ключ2 : значение2' в словарь"""
