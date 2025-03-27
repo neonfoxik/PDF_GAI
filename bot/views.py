@@ -64,21 +64,7 @@ is_sending_to_admin = bot.callback_query_handler(lambda c: c.data.startswith('se
 accept = bot.callback_query_handler(lambda c: c.data.startswith("accept"))(accept)
 add_new_document = bot.callback_query_handler(lambda c: c.data == "add_new_doc")(add_new_document)
 
-documents_sender = bot.callback_query_handler(lambda c: c.data.startswith('doc_sender_'))(documents_sender)
-
-
-
-parsing = bot.callback_query_handler(lambda c: c.data.startswith('markup_choose_document_'))(parsing)
-
-
-choose_default_user_values = bot.callback_query_handler(lambda c: c.data == "ChangeDefaultUserValue111")\
-    (choose_default_user_values)
-change_default_user_values = bot.callback_query_handler(lambda c: c.data.startswith("ChangeDefaultUserValue_"))\
-    (change_default_user_value)
-
 chat_with_ai = bot.message_handler(func=lambda message: True)(chat_with_ai)
-
-
 
 long_message_get_send_option = bot.callback_query_handler(lambda c: c.data.startswith("lngmsg_"))\
     (long_message_get_send_option)

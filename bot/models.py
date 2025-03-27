@@ -77,18 +77,3 @@ class Documents(models.Model):
         return self.address
 
 
-class UserTemplateVariable(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='template_variables')
-    display_name = models.CharField(max_length=30, verbose_name="Отображаемое название")
-    template_field = models.CharField(max_length=30, verbose_name="Поле в шаблоне")
-    value = models.TextField(blank=True, null=True, verbose_name="Значение")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = "Переменная шаблона"
-        verbose_name_plural = "Переменные шаблона"
-        ordering = ['display_name']
-
-    def __str__(self):
-        return f"{self.display_name} ({self.template_field})"

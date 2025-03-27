@@ -6,10 +6,7 @@ from .common import (
     old_button_menu,
     is_sending_to_admin,
     accept,
-    choose_default_user_values,
-    change_default_user_value,
     documents_main_menu,
-    documents_sender,
     documents_menu_call
 )
 from .user.ai import (
@@ -28,10 +25,4 @@ from .admin.save_doc import (
     add_new_document,
     
 )
-
-from .user.pars_system import (
-    parsing
-
-)
-
 

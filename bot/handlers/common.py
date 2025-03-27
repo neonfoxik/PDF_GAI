@@ -8,7 +8,7 @@ from telebot.types import (
 )
 
 from bot.keyboards import MENU_PARS_BUTTON
-from bot.models import User, UserTemplateVariable, Documents, Content, Button
+from bot.models import User, Documents, Content, Button
 from bot.texts import FAQ
 
 
@@ -162,64 +162,3 @@ def documents_menu_call(call: CallbackQuery) -> None:
                           , message_id=call.message.message_id)
 
 
-
-def documents_sender(callback_query: CallbackQuery) -> None:
-    doc_name = callback_query.data.split('_')[2]
-    keyboard = InlineKeyboardMarkup()
-    keyboard.add(InlineKeyboardButton(text="В меню", callback_data="documents_menu_call"))
-    keyboard.add(InlineKeyboardButton(text="Парсинг документов", callback_data=f"markup_choose_document_{doc_name}"))
-    keyboard.add(InlineKeyboardButton(text="Изменить записанные значения переменных документа",
-                                      callback_data="ChangeDefaultUserValue111"))
-    try:
-        bot.edit_message_text(chat_id=callback_query.message.chat.id,
-                         text="Вы можете скачать документ так или выбрать над ним действие ниже",
-                         reply_markup=keyboard, message_id=callback_query.message.message_id)
-    except Documents.DoesNotExist:
-        bot.send_message(callback_query.message.chat.id, "Документ не найден.")
-    except Exception as e:
-        logger.error(f"Ошибка при отправке документа: {e}")
-        bot.send_message(callback_query.message.chat.id, "Произошла ошибка при отправке документа.")
-
-
-def choose_default_user_values(callback_query: CallbackQuery) -> None:
-    user_id = callback_query.from_user.id
-    user = User.objects.get(telegram_id=user_id)
-    user_variables = UserTemplateVariable.objects.filter(user=user)
-    markup = InlineKeyboardMarkup(row_width=2)
-
-    for variable in user_variables:
-        button = InlineKeyboardButton(variable.display_name,
-                                      callback_data=f"ChangeDefaultUserValue__{variable.template_field}")
-        markup.add(button)
-    bot.send_message(user_id, "Выберете переменную которую хотите изменить", reply_markup=markup)
-
-
-def change_default_user_value(callback_query: CallbackQuery) -> None:
-    data_parts = callback_query.data.split("__")
-    print(data_parts)
-    if len(data_parts) < 2:
-        bot.send_message(callback_query.message.chat.id, "Ошибка: неверные данные.")
-        return
-    template_field = data_parts[1]
-    user = User.objects.get(telegram_id=callback_query.from_user.id)
-    user_variables = UserTemplateVariable.objects.filter(user=user, template_field=template_field).first()
-    
-    if user_variables is None:
-        bot.send_message(callback_query.message.chat.id, "Ошибка: переменная не найдена.")
-        return
-
-    bot.send_message(user.telegram_id, f"Выберете значение для {user_variables.display_name}")
-    bot.register_next_step_handler(callback_query.message, change_default_user_value_step, template_field)
-
-
-def change_default_user_value_step(message: Message, template_field) -> None:
-    user = User.objects.get(telegram_id=message.from_user.id)
-    user_variables = UserTemplateVariable.objects.filter(user=user, template_field=template_field).first()
-    
-    if user_variables is None:
-        bot.send_message(message.chat.id, "Ошибка: переменная не найдена.")
-        return
-
-    user_variables.value = message.text
-    user_variables.save()
-    bot.send_message(user.telegram_id, "Значение изменено")

@@ -3,8 +3,7 @@ from .models import (
     User,
     Content,
     Button,
-    Documents,
-    UserTemplateVariable
+    Documents
 )
 
 
@@ -21,13 +20,6 @@ class DocumentsAdmin(admin.ModelAdmin):
     search_fields = ['address', 'name']
 
 
-class UserTemplateVariableAdmin(admin.ModelAdmin):
-    list_display = ['user', 'display_name', 'template_field', 'value']
-    list_display_links = ['user', 'display_name']
-    search_fields = ['user__name', 'display_name']
-    list_editable = ['value']
-
-
 class ContentAdmin(admin.ModelAdmin):
     list_display = ['content_text', 'is_main_group']
     list_display_links = ['content_text']
@@ -42,6 +34,5 @@ class ButtonAdmin(admin.ModelAdmin):
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Documents, DocumentsAdmin)
-admin.site.register(UserTemplateVariable, UserTemplateVariableAdmin)
 admin.site.register(Content, ContentAdmin)
 admin.site.register(Button, ButtonAdmin)
