@@ -8,7 +8,7 @@ from telebot.types import (
 )
 
 from bot.keyboards import MENU_PARS_BUTTON
-from bot.models import User, Documents, Content, Button
+from bot.models import User, Content, Button
 from bot.texts import FAQ
 
 
@@ -142,23 +142,4 @@ def old_button_menu(callback_query: CallbackQuery) -> None:
 def help_(message: Message) -> None:
     """Обработчик команды /help."""
     bot.send_message(chat_id=message.chat.id, text=FAQ, parse_mode='Markdown')
-
-
-def documents_main_menu(message: Message) -> None:
-    documents = Documents.objects.all()
-    markup = InlineKeyboardMarkup(row_width=2)
-    for document in documents:
-        button = InlineKeyboardButton(document.name, callback_data=f"doc_sender_{document.name}")
-        markup.add(button)
-    bot.send_message(message.chat.id, "Документы", reply_markup=markup)
-
-def documents_menu_call(call: CallbackQuery) -> None:
-    documents = Documents.objects.all()
-    markup = InlineKeyboardMarkup(row_width=2)
-    for document in documents:
-        button = InlineKeyboardButton(document.name, callback_data=f"doc_sender_{document.name}")
-        markup.add(button)
-    bot.edit_message_text(chat_id=call.message.chat.id, text="Документы", reply_markup=markup
-                          , message_id=call.message.message_id)
-
 

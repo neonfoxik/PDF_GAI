@@ -6,8 +6,6 @@ from .common import (
     old_button_menu,
     is_sending_to_admin,
     accept,
-    documents_main_menu,
-    documents_menu_call
 )
 from .user.ai import (
     chat_with_ai
@@ -16,13 +14,5 @@ from .user.ai import (
 from.admin.admin import (
     documents_admin_menu,
     admin_menu_call
-)
-from .admin.save_doc import (
-    change_documents,
-    choose_move,
-    changing,
-    create_document,
-    add_new_document,
-    
 )
 

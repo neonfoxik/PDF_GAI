@@ -1,8 +1,8 @@
 from functools import wraps
 from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from bot import bot, logger
-from bot.models import User, Documents
-from bot.keyboards import  CANCELBUTTON, ADMIN_BUTTONS_DOC
+from bot.models import User
+from bot.keyboards import CANCELBUTTON, ADMIN_BUTTONS_DOC
 
 
 

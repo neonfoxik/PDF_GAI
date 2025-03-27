@@ -49,23 +49,13 @@ Common
 start = bot.message_handler(commands=["start"])(start)
 help_ = bot.message_handler(commands=["help"])(help_)
 documents_admin_menu = bot.message_handler(commands=["admin"])(documents_admin_menu)
-documents_main_menu = bot.message_handler(commands=["documents_menu"])(documents_main_menu)
 next_button_menu = bot.callback_query_handler(lambda c: c.data.startswith('bim_'))(next_button_menu)
 old_button_menu = bot.callback_query_handler(lambda c: c.data.startswith('back_btn_'))(old_button_menu)
 main_menu_call = bot.callback_query_handler(lambda c: c.data == 'main_menu_call')(main_menu_call)
-documents_menu_call = bot.callback_query_handler(lambda c: c.data == 'documents_menu_call')(documents_menu_call)
 cancellation = bot.callback_query_handler(lambda c: c.data == 'cancellation')(admin_menu_call)
-change_documents = bot.callback_query_handler(lambda c: c.data == 'load_file')(change_documents)
-choose_move = bot.callback_query_handler(lambda c: c.data.startswith('chsDoc'))(choose_move)
-changing = bot.callback_query_handler(lambda c: c.data.startswith('document_'))(changing)
-new_document = bot.callback_query_handler(lambda c: c.data == "create_new_document")(create_document)
-
 is_sending_to_admin = bot.callback_query_handler(lambda c: c.data.startswith('setbuy'))(is_sending_to_admin)
 accept = bot.callback_query_handler(lambda c: c.data.startswith("accept"))(accept)
-add_new_document = bot.callback_query_handler(lambda c: c.data == "add_new_doc")(add_new_document)
-
 chat_with_ai = bot.message_handler(func=lambda message: True)(chat_with_ai)
-
 long_message_get_send_option = bot.callback_query_handler(lambda c: c.data.startswith("lngmsg_"))\
     (long_message_get_send_option)
 long_message_get_send_option_docs = bot.callback_query_handler(lambda c: c.data.startswith("documents_"))\

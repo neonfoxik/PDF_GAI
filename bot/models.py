@@ -60,20 +60,3 @@ class Button(models.Model):
         return self.button_id
 
 
-class Documents(models.Model):
-    address = models.CharField(
-        max_length=40
-    )
-    name = models.CharField(
-        max_length=40,
-    )
-    template_fields = models.JSONField(null=True, blank=True)
-    
-    class Meta:
-        verbose_name = 'Документы'
-        verbose_name_plural = 'Документы'
-
-    def __str__(self):
-        return self.address
-
-

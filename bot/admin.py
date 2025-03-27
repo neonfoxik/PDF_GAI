@@ -2,8 +2,7 @@ from django.contrib import admin
 from .models import (
     User,
     Content,
-    Button,
-    Documents
+    Button
 )
 
 
@@ -12,12 +11,6 @@ class UserAdmin(admin.ModelAdmin):
     list_display_links = ['telegram_id']
     search_fields = ['telegram_id', 'name']
     list_editable = ['has_plan', 'is_admin']
-
-
-class DocumentsAdmin(admin.ModelAdmin):
-    list_display = ['address', 'name']
-    list_display_links = ['name']
-    search_fields = ['address', 'name']
 
 
 class ContentAdmin(admin.ModelAdmin):
@@ -33,6 +26,5 @@ class ButtonAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, UserAdmin)
-admin.site.register(Documents, DocumentsAdmin)
 admin.site.register(Content, ContentAdmin)
 admin.site.register(Button, ButtonAdmin)
