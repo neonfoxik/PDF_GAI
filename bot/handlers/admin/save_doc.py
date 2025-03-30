@@ -40,6 +40,7 @@ def change_documents(callback_query: CallbackQuery):
 def choose_move(callback_query: CallbackQuery):
     user_id = callback_query.message.chat.id
     _, num = callback_query.data.split("_")
+    num = int(num)  # Преобразуем строку в число
 
     admin_markup = InlineKeyboardMarkup(row_width=1)
     change_name = InlineKeyboardButton(text='Изменить название', callback_data=f"document_Name_{num}")
@@ -87,10 +88,12 @@ def change_fields(message: Message, num: int):
         doc.template_fields = fields_dict
         doc.save()
         bot.send_message(message.chat.id, "Поля успешно обновлены.")
+    except Documents.DoesNotExist:
+        bot.send_message(message.chat.id, "Документ не найден")
     except Exception as e:
         bot.send_message(message.chat.id, f"Ошибка при обновлении полей: {str(e)}\nУбедитесь, что формат соответствует 'ключ : значение; ключ2 : значение2'")
 
-def delete_document(num):
+def delete_document(num: int):
     doc = Documents.objects.get(address=num)
     # Удаляем все связанные файлы
     doc.files.all().delete()
@@ -139,7 +142,6 @@ def create_document(callback_query: CallbackQuery):
     try:
         # Создаем новый документ в базе данных
         new_doc = Documents.objects.create(
-            address=str(loc_counter),
             name=str(loc_counter),
             template_fields={}
         )
@@ -173,12 +175,10 @@ def add_new_document(call: CallbackQuery):
 def add_new_document_doc(message: Message):
     global loc_counter
     loc_counter += 1
-    num = str(loc_counter)
     
     try:
         # Создаем новый документ в базе данных
         new_doc = Documents.objects.create(
-            address=num,
             name=message.document.file_name,
             template_fields={}
         )
@@ -188,7 +188,7 @@ def add_new_document_doc(message: Message):
         downloaded_file = bot.download_file(file_info.file_path)
         
         # Создаем временный файл
-        temp_path = f"temp_{num}.docx"
+        temp_path = f"temp_{new_doc.address}.docx"
         with open(temp_path, 'wb') as f:
             f.write(downloaded_file)
         
@@ -210,7 +210,7 @@ def add_new_document_doc(message: Message):
     except Exception as e:
         bot.reply_to(message, f"Ошибка при добавлении документа: {str(e)}")
 
-def add_new_document_name(message: Message, num: str):
+def add_new_document_name(message: Message, num: int):
     new_name = message.text
 
     try:
@@ -224,7 +224,7 @@ def add_new_document_name(message: Message, num: str):
     except Exception as e:
         bot.send_message(message.chat.id, f"Ошибка при обновлении имени документа: {str(e)}")
 
-def add_new_document_fields(message: Message, num: str):
+def add_new_document_fields(message: Message, num: int):
     fields_str = message.text
 
     try:

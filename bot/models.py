@@ -61,8 +61,9 @@ class Button(models.Model):
 
 
 class Documents(models.Model):
-    address = models.CharField(
-        max_length=40
+    address = models.AutoField(
+        primary_key=True,
+        verbose_name='Идентификатор документа'
     )
     name = models.CharField(
         max_length=40,
@@ -74,7 +75,7 @@ class Documents(models.Model):
         verbose_name_plural = 'Документы'
 
     def __str__(self):
-        return self.address
+        return str(self.address)
 
 
 class DocumentFile(models.Model):
