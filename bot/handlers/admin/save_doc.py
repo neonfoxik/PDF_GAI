@@ -1,10 +1,9 @@
 import os
 from docx import Document
-
 from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from bot.keyboards import CANCELBUTTON, cancellation
 from bot.texts import FIELDS_FOR_DOCS
-from bot.models import Documents
+from bot.models import Documents, DocumentFile
 from bot import bot
 
 loc_counter = 0
@@ -92,50 +91,76 @@ def change_fields(message: Message, num: int):
         bot.send_message(message.chat.id, f"Ошибка при обновлении полей: {str(e)}\nУбедитесь, что формат соответствует 'ключ : значение; ключ2 : значение2'")
 
 def delete_document(num):
-    Documents.objects.get(address=num).delete()
-    try:
-        document = os.path.join(DOCUMENTS_DIR, f"{num}.docx")
-        os.remove(document)
-    except FileNotFoundError:
-        bot.send_message(chat_id, f"Документ {num}.docx не найден. Убедитесь, что файл существует.")
-    except Exception as e:
-        bot.send_message(chat_id, f"Ошибка при удалении документа: {str(e)}")
+    doc = Documents.objects.get(address=num)
+    # Удаляем все связанные файлы
+    doc.files.all().delete()
+    # Удаляем сам документ
+    doc.delete()
 
 def redc_document(message: Message, num: int):
     try:
-        # Удаляем старый файл если он существует
-        try:
-            document = os.path.join(DOCUMENTS_DIR, f"{num}.docx")
-            os.remove(document)
-        except FileNotFoundError:
-            pass
+        doc = Documents.objects.get(address=num)
+        # Удаляем старые файлы
+        doc.files.all().delete()
 
-        chat_id = message.chat.id
+        # Получаем и сохраняем новый файл
         file_info = bot.get_file(message.document.file_id)
         downloaded_file = bot.download_file(file_info.file_path)
-
-        document = os.path.join(DOCUMENTS_DIR, f"{num}.docx")
-        with open(document, 'wb') as new_file:
-            new_file.write(downloaded_file)
+        
+        # Создаем временный файл
+        temp_path = f"temp_{num}.docx"
+        with open(temp_path, 'wb') as f:
+            f.write(downloaded_file)
+        
+        # Создаем новый DocumentFile
+        with open(temp_path, 'rb') as f:
+            document_file = DocumentFile(
+                document=doc,
+                file_name=message.document.file_name,
+                file_size=message.document.file_size,
+                file_type=message.document.mime_type
+            )
+            document_file.file.save(message.document.file_name, f)
+            document_file.save()
+        
+        # Удаляем временный файл
+        os.remove(temp_path)
 
         bot.reply_to(message, "Сохранено")
+        bot.send_message(message.chat.id, "Документ обновлен.")
     except Exception as e:
         bot.reply_to(message, f"Произошла ошибка: {str(e)}")
-
-    bot.send_message(message.chat.id, "Документ обновлен.")
 
 def create_document(callback_query: CallbackQuery):
     global loc_counter
     loc_counter += 1
     doc = Document()
-    doc_path = os.path.join(DOCUMENTS_DIR, f"{str(loc_counter)}.docx")
+    
     try:
-        doc.save(doc_path)
-        Documents.objects.create(
+        # Создаем новый документ в базе данных
+        new_doc = Documents.objects.create(
             address=str(loc_counter),
             name=str(loc_counter),
             template_fields={}
         )
+        
+        # Создаем временный файл
+        temp_path = f"temp_{loc_counter}.docx"
+        doc.save(temp_path)
+        
+        # Открываем файл и создаем DocumentFile
+        with open(temp_path, 'rb') as f:
+            document_file = DocumentFile(
+                document=new_doc,
+                file_name=f"{loc_counter}.docx",
+                file_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            )
+            document_file.file.save(f"{loc_counter}.docx", f)
+            document_file.save()
+        
+        # Удаляем временный файл
+        os.remove(temp_path)
+        
         bot.send_message(callback_query.message.chat.id, "Новый документ создан")
     except Exception as e:
         bot.send_message(callback_query.message.chat.id, f"Ошибка при создании документа: {str(e)}")
@@ -148,28 +173,42 @@ def add_new_document(call: CallbackQuery):
 def add_new_document_doc(message: Message):
     global loc_counter
     loc_counter += 1
-    num = str(loc_counter)  # num должен быть строкой
-    chat_id = message.chat.id
-
+    num = str(loc_counter)
+    
     try:
-        file_info = bot.get_file(message.document.file_id)
-        downloaded_file = bot.download_file(file_info.file_path)
-
-        # Сохраняем в бинарном режиме
-        document_path = os.path.join(DOCUMENTS_DIR, f"{num}.docx")
-        with open(document_path, 'wb') as new_file:  # Открываем в бинарном режиме для записи
-            new_file.write(downloaded_file)
-
-        Documents.objects.create(
-            address=str(num),
-            name=str(num),
+        # Создаем новый документ в базе данных
+        new_doc = Documents.objects.create(
+            address=num,
+            name=message.document.file_name,
             template_fields={}
         )
-
-        bot.reply_to(message, "Сохранено, отправьте название документа", reply_markup=CANCELBUTTON)
-        bot.register_next_step_handler(message, add_new_document_name, num) # передаем num как строку
+        
+        # Получаем и сохраняем файл
+        file_info = bot.get_file(message.document.file_id)
+        downloaded_file = bot.download_file(file_info.file_path)
+        
+        # Создаем временный файл
+        temp_path = f"temp_{num}.docx"
+        with open(temp_path, 'wb') as f:
+            f.write(downloaded_file)
+        
+        # Создаем DocumentFile
+        with open(temp_path, 'rb') as f:
+            document_file = DocumentFile(
+                document=new_doc,
+                file_name=message.document.file_name,
+                file_size=message.document.file_size,
+                file_type=message.document.mime_type
+            )
+            document_file.file.save(message.document.file_name, f)
+            document_file.save()
+        
+        # Удаляем временный файл
+        os.remove(temp_path)
+        
+        bot.reply_to(message, "Документ успешно добавлен")
     except Exception as e:
-        bot.send_message(chat_id, f"Произошла ошибка при сохранении файла: {str(e)}")
+        bot.reply_to(message, f"Ошибка при добавлении документа: {str(e)}")
 
 def add_new_document_name(message: Message, num: str):
     new_name = message.text

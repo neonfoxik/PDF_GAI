@@ -21,17 +21,18 @@ PROVIDER = "https://api.vsegpt.ru/v1"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-LOCAL = os.getenv('LOCAL')
+LOCAL = getenv('LOCAL')
 
 ALLOWED_HOSTS = ["*"]
 
-BOT_TOKEN = os.getenv('BOT_TOKEN')
-OWNER_ID = os.getenv('OWNER_ID')
-HOOK = os.getenv('HOOK')
+BOT_TOKEN = getenv('BOT_TOKEN')
+OWNER_ID = getenv('OWNER_ID')
+HOOK = getenv('HOOK')
 
 
 BOT_COMMANDS = [
     BotCommand("start", "Меню"),
+    BotCommand("documents_menu", "Действия с документами")
 ]
 INSTALLED_APPS = [
     'bot',

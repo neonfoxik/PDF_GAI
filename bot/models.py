@@ -77,6 +77,35 @@ class Documents(models.Model):
         return self.address
 
 
+class DocumentFile(models.Model):
+    document = models.ForeignKey(Documents, on_delete=models.CASCADE, related_name='files')
+    file = models.FileField(
+        upload_to='documents/%Y/%m/%d/',
+        verbose_name='Файл документа'
+    )
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    file_name = models.CharField(max_length=255, verbose_name='Имя файла')
+    file_size = models.IntegerField(verbose_name='Размер файла')
+    file_type = models.CharField(max_length=50, verbose_name='Тип файла')
+
+    class Meta:
+        verbose_name = 'Файл документа'
+        verbose_name_plural = 'Файлы документов'
+        ordering = ['-uploaded_at']
+
+    def __str__(self):
+        return f"{self.file_name} ({self.document.name})"
+
+    def save(self, *args, **kwargs):
+        if not self.file_name:
+            self.file_name = self.file.name
+        if not self.file_size:
+            self.file_size = self.file.size
+        if not self.file_type:
+            self.file_type = self.file.content_type
+        super().save(*args, **kwargs)
+
+
 class UserTemplateVariable(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='template_variables')
     display_name = models.CharField(max_length=50, verbose_name="Отображаемое название")

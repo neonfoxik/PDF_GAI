@@ -17,7 +17,15 @@ def parsing(callback: CallbackQuery):
     doc_name = callback.data.split('_')[3]
     document = Documents.objects.filter(name=doc_name).first()
     address = document.address
-    doc = DocxTemplate(f"documents/{document.address}.docx")  # Изменено на путь к папке documents
+    
+    # Получаем файл документа из модели DocumentFile
+    document_file = document.files.first()
+    if not document_file:
+        bot.send_message(user_id, "Файл документа не найден")
+        return
+        
+    # Используем путь к файлу из модели
+    doc = DocxTemplate(document_file.file.path)
 
     context = {}
     fields_need_to_create = []
@@ -51,7 +59,12 @@ def ask_next_variable(user: User, fields: list, index: int, address: str, contex
     if index >= len(fields):
         # Все переменные собраны, можно рендерить документ
         document = Documents.objects.get(address=address)
-        doc = DocxTemplate(f"documents/{address}.docx")  # Изменено на путь к папке documents
+        document_file = document.files.first()
+        if not document_file:
+            bot.send_message(user.telegram_id, "Файл документа не найден")
+            return
+            
+        doc = DocxTemplate(document_file.file.path)
         render_document(doc, context, user.telegram_id)
         return
 
