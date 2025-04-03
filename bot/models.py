@@ -44,7 +44,7 @@ class Content(models.Model):
         return self.content_text[:10]
 
 class Button(models.Model):
-    button_id = models.AutoField(primary_key=True, default=0)
+    button_id = models.AutoField(primary_key=True)
     text = models.CharField(
         max_length=20,
         verbose_name='текст кнопки'
