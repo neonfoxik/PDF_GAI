@@ -7,7 +7,7 @@ from telebot.types import (
 
 MENU_PARS_BUTTON = InlineKeyboardMarkup()
 menu = InlineKeyboardButton(text="В меню", callback_data="menu")
-document_menu = InlineKeyboardButton(text="Парсинг документов", callback_data="marckup_choose_document")
+document_menu = InlineKeyboardButton(text="Отправить документ", callback_data="marckup_choose_document")
 change_base_values  = InlineKeyboardButton(text="Изменить базовые значения", callback_data="ChangeDefaultUserValue111")
 MENU_PARS_BUTTON.add(menu).add(document_menu).add(change_base_values)
 
