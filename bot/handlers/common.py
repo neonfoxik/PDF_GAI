@@ -82,14 +82,19 @@ def accept(call: CallbackQuery):
 
 def main_menu_message(message: Message) -> None:
     menu = Content.objects.filter(is_main_group=True).first()
-    if menu:
-        buttons = Button.objects.filter(parent=menu)
-        markup = InlineKeyboardMarkup(row_width=1)
-        for button in buttons:
-            markup.add(InlineKeyboardButton(text=button.text, callback_data=f"bim_{button.button_id}"))
-        bot.send_message(message.chat.id, menu.content_text, reply_markup=markup)
-    else:
-        bot.send_message(message.chat.id, "Чтобы бот показывал кнопки нужно создать кнопки и контент")
+    if not menu:
+        bot.send_message(message.chat.id, "Главное меню не настроено. Пожалуйста, обратитесь к администратору.")
+        return
+        
+    buttons = Button.objects.filter(parent=menu)
+    if not buttons.exists():
+        bot.send_message(message.chat.id, "В главном меню нет кнопок. Пожалуйста, обратитесь к администратору.")
+        return
+        
+    markup = InlineKeyboardMarkup(row_width=1)
+    for button in buttons:
+        markup.add(InlineKeyboardButton(text=button.text, callback_data=f"bim_{button.button_id}"))
+    bot.send_message(message.chat.id, menu.content_text, reply_markup=markup)
 
 
 def main_menu_call(callback_query: CallbackQuery) -> None:
@@ -107,17 +112,23 @@ def main_menu_call(callback_query: CallbackQuery) -> None:
 def next_button_menu(callback_query: CallbackQuery) -> None:
     button_id = int(callback_query.data.split("_")[-1])
     button = Button.objects.filter(button_id=button_id).first()
-    if button:
-        child_content = button.child
-        if child_content:
-            child_content_buttons = Button.objects.filter(parent=child_content)
-            markup = InlineKeyboardMarkup(row_width=1)
-            for child_button in child_content_buttons:
-                markup.add(InlineKeyboardButton(text=child_button.text, callback_data=f"bim_{child_button.button_id}"))
-            markup.add(InlineKeyboardButton(text="Назад", callback_data=f"back_btn_{button.button_id}"))
-            markup.add(InlineKeyboardButton(text="В главное меню", callback_data="main_menu_call"))
-            bot.edit_message_text(chat_id=callback_query.from_user.id, text=child_content.content_text,
-                                  reply_markup=markup, message_id=callback_query.message.message_id)
+    if not button:
+        bot.send_message(callback_query.message.chat.id, "Кнопка не найдена. Пожалуйста, обратитесь к администратору.")
+        return
+        
+    child_content = button.child
+    if not child_content:
+        bot.send_message(callback_query.message.chat.id, "Для этой кнопки не настроен контент. Пожалуйста, обратитесь к администратору.")
+        return
+        
+    child_content_buttons = Button.objects.filter(parent=child_content)
+    markup = InlineKeyboardMarkup(row_width=1)
+    for child_button in child_content_buttons:
+        markup.add(InlineKeyboardButton(text=child_button.text, callback_data=f"bim_{child_button.button_id}"))
+    markup.add(InlineKeyboardButton(text="Назад", callback_data=f"back_btn_{button.button_id}"))
+    markup.add(InlineKeyboardButton(text="В главное меню", callback_data="main_menu_call"))
+    bot.edit_message_text(chat_id=callback_query.from_user.id, text=child_content.content_text,
+                          reply_markup=markup, message_id=callback_query.message.message_id)
 
 
 def old_button_menu(callback_query: CallbackQuery) -> None:
