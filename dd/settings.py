@@ -15,7 +15,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 SECRET_KEY = '(tu7fvnsgmyk*9)dnre_qp4&6@sgu#$18u=yp3m+2c=tvkj9+w'
 # SECURITY WARNING: keep the secret key used in production secret!
-ASSISTANT_PROMPT="ты крутой юрист и помогаешь разобраться в ситуациях на дороге"
+ASSISTANT_PROMPT = "Ты помощник на дороге используй все законы и правила из ПДД, КоАП и законе О безопасности дорожного" \
+                   " движения используй смайлики и старайся казатся более приятным в ообщении"
 PROVIDER_NAME = "vsegpt"
 PROVIDER = "https://api.vsegpt.ru/v1"
 # SECURITY WARNING: don't run with debug turned on in production!
