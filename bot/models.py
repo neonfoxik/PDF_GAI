@@ -29,28 +29,26 @@ class User(models.Model):
 
 
 class Content(models.Model):
-    content_text = models.CharField(
-        max_length=4096,
+    content_text = models.TextField(
         verbose_name='текст контента',
     )
-    is_main_group = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Контент'
         verbose_name_plural = 'Контенты'
 
-
     def __str__(self):
         return self.content_text[:10]
 
+
 class Button(models.Model):
-    button_id = models.AutoField(primary_key=True, default=0)
+    button_id = models.AutoField(primary_key=True)
     text = models.CharField(
         max_length=20,
         verbose_name='текст кнопки'
     )
     child = models.ForeignKey(Content, on_delete=models.CASCADE, related_name='Child_content', blank=True, null=True)
-    parent = models.ForeignKey(Content, on_delete=models.CASCADE, related_name='Parent_content')
+    parent = models.ForeignKey(Content, on_delete=models.CASCADE, related_name='Parent_content', null=True, blank=True)
 
     class Meta:
         verbose_name = 'кнопка'
