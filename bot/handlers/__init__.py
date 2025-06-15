@@ -4,8 +4,6 @@ from .common import (
     next_button_menu,
     main_menu_call,
     old_button_menu,
-    is_sending_to_admin,
-    accept,
     choose_default_user_values,
     change_default_user_value,
     documents_main_menu,

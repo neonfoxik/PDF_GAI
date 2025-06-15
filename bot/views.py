@@ -60,8 +60,6 @@ choose_move = bot.callback_query_handler(lambda c: c.data.startswith('chsDoc'))(
 changing = bot.callback_query_handler(lambda c: c.data.startswith('document_'))(changing)
 new_document = bot.callback_query_handler(lambda c: c.data == "create_new_document")(create_document)
 
-is_sending_to_admin = bot.callback_query_handler(lambda c: c.data.startswith('setbuy'))(is_sending_to_admin)
-accept = bot.callback_query_handler(lambda c: c.data.startswith("accept"))(accept)
 add_new_document = bot.callback_query_handler(lambda c: c.data == "add_new_doc")(add_new_document)
 
 documents_sender = bot.callback_query_handler(lambda c: c.data.startswith('doc_sender_'))(documents_sender)

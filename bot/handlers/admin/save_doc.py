@@ -8,7 +8,10 @@ from bot.models import Documents
 from bot import bot
 
 loc_counter = 0
-DOCUMENTS_DIR = os.path.dirname(__file__), "..", "..", "documents"
+DOCUMENTS_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "documents")
+
+# Создаем директорию documents, если она не существует
+os.makedirs(DOCUMENTS_DIR, exist_ok=True)
 
 def parse_template_fields(fields_str: str) -> dict:
     """Преобразует строку формата 'ключ : значение; ключ2 : значение2' в словарь"""
