@@ -11,7 +11,7 @@ from .document_processor import DocumentProcessor
 
 dotenv.load_dotenv()
 
-openai.api_key = "sk-or-vv-9d90950af188ed57252dbbc413034c8038f982ddf17e9f6d187e2ca03c227f3f"
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 ASSISTANT_PROMPT = settings.ASSISTANT_PROMPT
 
